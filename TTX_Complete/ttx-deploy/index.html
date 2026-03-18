@@ -1,0 +1,3278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Think Tank X — Startup Risk Framework</title>
+<style>
+/* ── Reset ── */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:Georgia,'Times New Roman',serif;background:#0a0a0a;color:#e8e4d8}
+
+/* ── Typography fallback stack (offline) ── */
+:root{
+  --serif:Georgia,'Times New Roman',Times,serif;
+  --sans:'Segoe UI',Helvetica,Arial,sans-serif;
+  --mono:'Courier New',Courier,monospace;
+  --gold:#C5973A;
+  --gold-dim:rgba(197,151,58,0.2);
+  --dark:#0a0a0a;
+  --bone:#f0ece0;
+  --mid:#888880;
+  --border:rgba(197,151,58,0.2);
+}
+
+/* ── Nav ── */
+.nav{display:flex;justify-content:space-between;align-items:center;padding:16px 32px;border-bottom:.5px solid var(--border);background:rgba(10,10,10,.98);position:sticky;top:0;z-index:100}
+.nav-logo{font-family:var(--serif);font-size:20px;color:var(--gold);letter-spacing:.04em}
+.nav-logo span{color:var(--bone)}
+.nav-tabs{display:flex;gap:0}
+.nav-tab{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:8px 18px;color:var(--mid);cursor:pointer;border:.5px solid transparent;transition:all .2s;background:transparent}
+.nav-tab:hover{color:var(--bone)}
+.nav-tab.active{color:var(--gold);border-color:var(--border);background:rgba(197,151,58,.06)}
+.nav-badge{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);border:.5px solid var(--border);padding:4px 10px}
+
+/* ── Screens ── */
+.screen{display:none;min-height:calc(100vh - 56px)}
+.screen.active{display:block}
+
+/* ── MODE SELECT ── */
+.mode-screen{padding:56px 40px}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.eyebrow::before{content:'';display:block;width:24px;height:1px;background:var(--gold)}
+.headline{font-family:var(--serif);font-size:42px;color:var(--bone);margin-bottom:12px;line-height:1.1}
+.subline{font-size:15px;color:var(--mid);margin-bottom:48px;line-height:1.6;max-width:480px}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;max-width:640px}
+.mode-card{border:.5px solid var(--border);padding:28px 24px;cursor:pointer;transition:border-color .2s,background .2s;background:#0f0f0a}
+.mode-card:hover{border-color:var(--gold);background:#131310}
+.mode-card.selected{border:1.5px solid var(--gold);background:#131310}
+.mode-card-title{font-family:var(--serif);font-size:20px;color:var(--bone);margin-bottom:6px}
+.mode-card-desc{font-size:12px;color:var(--mid);line-height:1.55}
+.name-label{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:block}
+.name-input{width:100%;max-width:640px;background:#0f0f0a;border:.5px solid var(--border);color:var(--bone);font-family:var(--sans);font-size:14px;padding:13px 16px;outline:none;transition:border-color .2s;margin-bottom:20px}
+.name-input:focus{border-color:var(--gold)}
+.name-input::placeholder{color:#444}
+.btn-gold{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:14px 40px;background:var(--gold);color:#0a0a0a;border:none;cursor:pointer;transition:opacity .2s}
+.btn-gold:hover{opacity:.88}
+.btn-gold:disabled{opacity:.3;cursor:not-allowed}
+.btn-gold.full{width:100%;max-width:640px}
+
+/* ── ASSESSMENT ── */
+.progress-wrap{padding:14px 32px;border-bottom:.5px solid var(--border);background:#0f0f0a}
+.progress-meta{display:flex;justify-content:space-between;margin-bottom:8px}
+.progress-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+.progress-count{font-family:var(--mono);font-size:10px;color:#555}
+.progress-track{height:2px;background:rgba(197,151,58,.12)}
+.progress-fill{height:2px;background:var(--gold);transition:width .4s ease}
+.pillar-tabs{display:flex;border-bottom:.5px solid var(--border)}
+.pillar-tab{flex:1;padding:11px 8px;text-align:center;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#444;cursor:pointer;border-bottom:2px solid transparent;transition:color .2s}
+.pillar-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.assessment-layout{display:grid;grid-template-columns:1fr 220px;min-height:calc(100vh - 180px)}
+.q-main{padding:32px}
+.q-pillar-label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.q-dot{width:6px;height:6px;border-radius:50%}
+.q-block{margin-bottom:24px;padding:20px;border:.5px solid rgba(197,151,58,.12);background:#0f0f0a}
+.q-text{font-size:14px;color:#d8d4c8;line-height:1.55;margin-bottom:14px;font-weight:bold}
+.q-opts{display:flex;flex-direction:column;gap:5px}
+.q-opt{display:flex;align-items:flex-start;gap:12px;padding:10px 12px;border:.5px solid rgba(197,151,58,.08);cursor:pointer;transition:border-color .15s,background .15s;font-size:12px;color:#777;line-height:1.4;background:transparent}
+.q-opt:hover{border-color:rgba(197,151,58,.4);color:#bbb;background:#111}
+.q-opt.sel{border-color:var(--gold);color:var(--bone);background:rgba(197,151,58,.06)}
+.q-opt-score{font-family:var(--mono);font-size:10px;color:var(--gold);min-width:18px;padding-top:1px}
+.q-nav{display:flex;gap:12px;margin-top:8px}
+.btn-back{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:10px 20px;background:transparent;color:#666;border:.5px solid rgba(197,151,58,.2);cursor:pointer}
+.btn-next{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:10px 24px;background:var(--gold);color:#0a0a0a;border:none;cursor:pointer;flex:1}
+.btn-next:disabled{opacity:.3;cursor:not-allowed}
+.sidebar{border-left:.5px solid var(--border);padding:24px 18px;background:#0a0a08}
+.sidebar-title{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#444;margin-bottom:16px}
+.live-num{font-family:var(--serif);font-size:52px;line-height:1;margin-bottom:4px}
+.live-tier{font-size:11px;color:#555;margin-bottom:20px}
+.pmini{margin-bottom:12px}
+.pmini-header{display:flex;justify-content:space-between;margin-bottom:4px}
+.pmini-name{font-size:10px;color:#555}
+.pmini-val{font-family:var(--mono);font-size:10px;color:#666}
+.pmini-track{height:3px;background:rgba(255,255,255,.05)}
+.pmini-fill{height:3px;transition:width .4s ease}
+
+/* ── RESULTS ── */
+.results-wrap{padding:40px}
+.r-hero{text-align:center;padding:40px 0;border-bottom:.5px solid var(--border);margin-bottom:40px}
+.r-tag{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#666;margin-bottom:14px}
+.r-big{font-family:var(--serif);font-size:92px;line-height:1;margin-bottom:10px}
+.r-tier{font-size:12px;font-weight:bold;letter-spacing:.14em;text-transform:uppercase;padding:6px 20px;display:inline-block;margin-bottom:18px}
+.r-quote{font-family:var(--serif);font-style:italic;font-size:18px;color:var(--bone);margin-bottom:8px}
+.r-sub{font-size:13px;color:#777;max-width:480px;margin:0 auto;line-height:1.6}
+.r-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
+.r-card{border:.5px solid var(--border);padding:20px;background:#0f0f0a}
+.r-card-header{display:flex;justify-content:space-between;margin-bottom:10px}
+.r-card-name{font-size:12px;font-weight:bold;color:#b8b4a8}
+.r-card-wt{font-family:var(--mono);font-size:9px;color:#444}
+.r-card-score{font-family:var(--serif);font-size:34px}
+.r-card-bar{height:3px;background:rgba(255,255,255,.05);margin:8px 0}
+.r-card-fill{height:3px}
+.r-card-flags{display:flex;flex-direction:column;gap:3px}
+.r-flag{font-size:10px;padding:3px 8px;border-left:2px solid rgba(197,151,58,.3);color:#777}
+.r-flag.red{border-left-color:#C53A3A;color:#b07070}
+.r-flag.green{border-left-color:#4CAF82;color:#70a080}
+.r-verdict-block{border:.5px solid var(--border);padding:24px;background:#0f0f0a;margin-bottom:24px}
+.r-verdict-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.r-verdict-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold}
+.r-verdict-title{font-family:var(--serif);font-size:22px;color:var(--bone)}
+.r-verdict-body{font-size:13px;color:#888;line-height:1.65}
+.flags-section{margin-bottom:28px}
+.flags-title{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#444;margin-bottom:12px}
+.flag-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-bottom:.5px solid rgba(197,151,58,.06);font-size:12px;color:#888;line-height:1.5}
+.flag-dot{width:6px;height:6px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.r-actions{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap}
+.btn-outline{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:12px 22px;background:transparent;color:#666;border:.5px solid rgba(197,151,58,.3);cursor:pointer}
+.btn-outline:hover{color:var(--gold);border-color:var(--gold)}
+.btn-action{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:12px 22px;background:var(--gold);color:#0a0a0a;border:none;cursor:pointer}
+.btn-action:hover{opacity:.88}
+.section-divider{height:1px;background:var(--border);margin:32px 0}
+
+/* ── PDF SECTION ── */
+.pdf-section{border:.5px solid var(--border);background:#0f0f0a;padding:28px;margin-bottom:24px}
+.pdf-header{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.pdf-title{font-family:var(--serif);font-size:18px;color:var(--bone)}
+.pdf-desc{font-size:13px;color:#777;line-height:1.6;margin-bottom:18px}
+.pdf-preview{background:#151512;border:.5px solid rgba(197,151,58,.12);padding:14px;margin-bottom:14px;font-family:var(--mono);font-size:10px;color:#555;line-height:1.8;white-space:pre-wrap}
+.pdf-preview .hi{color:var(--gold)}.pdf-preview .hi2{color:var(--bone)}
+.dl-status{font-family:var(--mono);font-size:10px;color:var(--gold);margin-top:8px;min-height:16px}
+
+/* ── SCORE CARD ── */
+.scorecard-screen{padding:40px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;max-width:700px}
+.form-grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:16px;max-width:700px}
+.fl{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;display:block}
+.fi{width:100%;background:#0f0f0a;border:.5px solid var(--border);color:var(--bone);font-family:var(--sans);font-size:13px;padding:10px 12px;outline:none}
+.fi:focus{border-color:var(--gold)}
+.fi::placeholder{color:#333}
+.fi-num{width:100%;background:#0f0f0a;border:.5px solid var(--border);color:var(--bone);font-family:var(--mono);font-size:13px;padding:10px 12px;outline:none;text-align:center}
+.fi-num:focus{border-color:var(--gold)}
+.fsel{width:100%;background:#0f0f0a;border:.5px solid var(--border);color:var(--bone);font-family:var(--sans);font-size:13px;padding:10px 12px;outline:none;appearance:none;cursor:pointer}
+.fsel:focus{border-color:var(--gold)}
+
+/* The card itself — 600x315 */
+.sc{width:600px;height:315px;position:relative;overflow:hidden;background:#0a0a0a;flex-shrink:0}
+.sc-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(197,151,58,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(197,151,58,.04) 1px,transparent 1px);background-size:30px 30px}
+.sc-accent{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gold)}
+.sc-top{position:absolute;top:0;left:0;right:0;height:36px;background:rgba(10,10,8,.92);border-bottom:.5px solid rgba(197,151,58,.2);display:flex;align-items:center;padding:0 22px;justify-content:space-between}
+.sc-brand{font-family:var(--serif);font-size:14px;color:var(--gold)}
+.sc-brand span{color:var(--bone)}
+.sc-tag{font-family:var(--mono);font-size:8px;color:#444;letter-spacing:.15em;text-transform:uppercase}
+.sc-body{position:absolute;top:36px;left:0;right:0;bottom:38px;display:grid;grid-template-columns:196px 1fr}
+.sc-left{padding:16px 16px 14px 22px;display:flex;flex-direction:column;justify-content:space-between;border-right:.5px solid rgba(197,151,58,.12)}
+.sc-vlabel{font-family:var(--mono);font-size:7px;letter-spacing:.15em;text-transform:uppercase;color:#444;margin-bottom:3px}
+.sc-vname{font-family:var(--serif);font-size:15px;color:var(--bone);line-height:1.2;margin-bottom:2px;word-break:break-word}
+.sc-vmode{font-family:var(--mono);font-size:7px;color:#555;letter-spacing:.1em;text-transform:uppercase}
+.sc-snum{font-family:var(--serif);font-size:68px;line-height:1;letter-spacing:-.02em}
+.sc-sdenom{font-family:var(--mono);font-size:10px;color:#444;margin-top:-4px}
+.sc-badge{display:inline-block;font-family:var(--sans);font-size:8px;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;margin-top:5px}
+.sc-right{padding:14px 18px 10px 16px;display:flex;flex-direction:column;justify-content:space-between}
+.sc-plabel{font-family:var(--mono);font-size:7px;letter-spacing:.15em;text-transform:uppercase;color:#444;margin-bottom:8px}
+.sc-pillars{display:flex;flex-direction:column;gap:6px;flex:1}
+.sc-pillar{display:flex;align-items:center;gap:7px}
+.sc-pname{font-size:9px;color:#666;width:126px;flex-shrink:0;font-family:var(--sans)}
+.sc-ptrack{flex:1;height:3px;background:rgba(255,255,255,.05);position:relative}
+.sc-pfill{height:3px;position:absolute;left:0;top:0}
+.sc-pval{font-family:var(--mono);font-size:9px;width:28px;text-align:right;flex-shrink:0}
+.sc-verd{display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:.5px solid rgba(197,151,58,.1)}
+.sc-vl{font-family:var(--mono);font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:#444}
+.sc-vv{font-family:var(--sans);font-size:10px;font-weight:bold;letter-spacing:.05em}
+.sc-vdesc{font-family:var(--sans);font-size:8px;color:#555;margin-left:auto;text-align:right;max-width:160px;line-height:1.35}
+.sc-bottom{position:absolute;bottom:0;left:0;right:0;height:38px;border-top:.5px solid rgba(197,151,58,.12);background:rgba(10,10,8,.8);display:flex;align-items:center;padding:0 22px;justify-content:space-between}
+.sc-bl{font-family:var(--mono);font-size:7px;color:#333;letter-spacing:.1em}
+.sc-br{font-family:var(--mono);font-size:7px;color:#333;letter-spacing:.1em}
+.sc-actions{display:flex;gap:12px;margin-top:14px;max-width:700px}
+.btn-sc-dl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:12px 0;background:var(--gold);color:#0a0a0a;border:none;cursor:pointer;flex:1}
+.btn-sc-copy{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:12px 0;background:transparent;color:#666;border:.5px solid var(--border);cursor:pointer;flex:1}
+.btn-sc-copy:hover{color:var(--gold);border-color:var(--gold)}
+.sc-note{font-family:var(--mono);font-size:9px;color:#444;margin-top:8px;line-height:1.5}
+.sc-status{font-family:var(--mono);font-size:10px;color:var(--gold);margin-top:6px;min-height:14px}
+
+/* ── HISTORY ── */
+.history-screen{padding:40px}
+.hist-empty{padding:60px 0;text-align:center;color:#444;font-family:var(--mono);font-size:12px;letter-spacing:.08em}
+.hist-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:36px;max-width:700px}
+.hist-stat{background:#0f0f0a;border:.5px solid var(--border);padding:16px 18px}
+.hist-stat-num{font-family:var(--serif);font-size:28px;margin-bottom:4px}
+.hist-stat-label{font-family:var(--mono);font-size:9px;color:#555;letter-spacing:.12em;text-transform:uppercase}
+.hist-list{display:flex;flex-direction:column;gap:10px;max-width:860px}
+.hist-card{border:.5px solid var(--border);background:#0f0f0a;padding:20px 24px;cursor:pointer;transition:border-color .2s}
+.hist-card:hover{border-color:var(--gold)}
+.hist-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.hist-card-left{}
+.hist-card-name{font-family:var(--serif);font-size:18px;color:var(--bone);margin-bottom:3px}
+.hist-card-meta{font-family:var(--mono);font-size:9px;color:#555;letter-spacing:.1em;text-transform:uppercase}
+.hist-card-right{text-align:right}
+.hist-card-score{font-family:var(--serif);font-size:36px;line-height:1}
+.hist-card-tier{font-family:var(--mono);font-size:9px;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+.hist-card-pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.hist-pillar-item{}
+.hist-pillar-name{font-family:var(--mono);font-size:8px;color:#555;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.hist-pillar-bar{height:3px;background:rgba(255,255,255,.05);margin-bottom:3px}
+.hist-pillar-fill{height:3px}
+.hist-pillar-val{font-family:var(--mono);font-size:10px}
+.hist-card-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:.5px solid rgba(197,151,58,.08)}
+.hist-card-verdict{font-family:var(--mono);font-size:10px;font-weight:bold;letter-spacing:.08em}
+.hist-card-actions{display:flex;gap:8px}
+.btn-hist-sm{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:6px 14px;background:transparent;color:#666;border:.5px solid rgba(197,151,58,.2);cursor:pointer;transition:color .2s,border-color .2s}
+.btn-hist-sm:hover{color:var(--gold);border-color:var(--gold)}
+.btn-hist-del{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:6px 14px;background:transparent;color:#555;border:.5px solid rgba(197,58,58,.2);cursor:pointer}
+.btn-hist-del:hover{color:#C53A3A;border-color:#C53A3A}
+.hist-trend{margin-bottom:32px;max-width:700px}
+.hist-trend-title{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#555;margin-bottom:12px}
+.trend-chart{height:80px;position:relative;background:#0f0f0a;border:.5px solid var(--border);padding:8px 12px}
+.hist-clear-wrap{margin-top:28px;padding-top:20px;border-top:.5px solid rgba(197,58,58,.1)}
+
+/* ── COMPARE ── */
+.compare-screen{padding:40px}
+.compare-empty{padding:60px 0;text-align:center;color:#444;font-family:var(--mono);font-size:12px;letter-spacing:.08em;line-height:1.8}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:36px;max-width:860px}
+.compare-slot{border:.5px solid var(--border);background:#0f0f0a;padding:24px}
+.compare-slot-label{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.compare-select{width:100%;background:#0a0a0a;border:.5px solid var(--border);color:var(--bone);font-family:var(--sans);font-size:13px;padding:10px 12px;outline:none;appearance:none;cursor:pointer;margin-bottom:12px}
+.compare-select:focus{border-color:var(--gold)}
+.compare-slot-detail{margin-top:14px}
+.compare-slot-name{font-family:var(--serif);font-size:20px;color:var(--bone);margin-bottom:3px}
+.compare-slot-meta{font-family:var(--mono);font-size:9px;color:#555;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+.compare-slot-score{font-family:var(--serif);font-size:52px;line-height:1;margin-bottom:2px}
+.compare-slot-tier{font-family:var(--mono);font-size:9px;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+.compare-slot-pillars{display:flex;flex-direction:column;gap:7px}
+.compare-p-row{display:flex;align-items:center;gap:8px}
+.compare-p-name{font-family:var(--mono);font-size:9px;color:#555;width:110px;flex-shrink:0;letter-spacing:.06em;text-transform:uppercase}
+.compare-p-track{flex:1;height:4px;background:rgba(255,255,255,.05)}
+.compare-p-fill{height:4px}
+.compare-p-val{font-family:var(--mono);font-size:10px;width:30px;text-align:right;flex-shrink:0}
+.compare-vs-badge{display:flex;align-items:center;justify-content:center;padding-top:48px}
+.compare-vs-inner{font-family:var(--serif);font-size:18px;color:#333;letter-spacing:.08em}
+.compare-radar-wrap{max-width:860px;margin-bottom:32px;border:.5px solid var(--border);background:#0f0f0a;padding:24px}
+.compare-radar-title{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#555;margin-bottom:16px}
+.compare-table-wrap{max-width:860px;margin-bottom:32px}
+.compare-table-title{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#555;margin-bottom:12px}
+.compare-table{width:100%;border-collapse:collapse}
+.compare-table th{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:10px 14px;text-align:left;background:#0f0f0a;border:.5px solid var(--border)}
+.compare-table td{padding:10px 14px;border:.5px solid var(--border);font-size:12px;vertical-align:middle}
+.compare-table tr:nth-child(even) td{background:#0a0a08}
+.compare-win{font-family:var(--mono);font-size:9px;font-weight:bold;letter-spacing:.06em}
+.compare-verdict-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:860px;margin-bottom:24px}
+.compare-verdict-card{border:.5px solid var(--border);background:#0f0f0a;padding:20px}
+.cvcard-name{font-family:var(--sans);font-size:11px;color:#555;margin-bottom:8px;letter-spacing:.06em}
+.cvcard-verdict{font-family:var(--serif);font-size:22px;color:var(--bone);margin-bottom:6px}
+.cvcard-body{font-size:12px;color:#777;line-height:1.55}
+
+/* ── BENCHMARK ── */
+.bench-screen{padding:40px}
+.bench-select-wrap{max-width:500px;margin-bottom:32px}
+.bench-select{width:100%;background:#0f0f0a;border:.5px solid var(--border);color:var(--bone);font-family:var(--sans);font-size:13px;padding:11px 14px;outline:none;appearance:none;cursor:pointer;margin-top:8px}
+.bench-select:focus{border-color:var(--gold)}
+.bench-hero{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:32px;max-width:860px}
+.bench-metric{border:.5px solid var(--border);background:#0f0f0a;padding:20px 22px}
+.bench-metric-label{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#555;margin-bottom:10px}
+.bench-metric-row{display:flex;align-items:baseline;gap:12px}
+.bench-metric-yours{font-family:var(--serif);font-size:36px}
+.bench-metric-vs{font-family:var(--mono);font-size:10px;color:#444}
+.bench-metric-avg{font-family:var(--serif);font-size:24px;color:#555}
+.bench-metric-delta{font-family:var(--mono);font-size:11px;font-weight:bold;margin-top:4px}
+.bench-bars-wrap{max-width:860px;margin-bottom:32px}
+.bench-bars-title{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#555;margin-bottom:16px}
+.bench-bar-group{margin-bottom:18px}
+.bench-bar-label{font-family:var(--sans);font-size:12px;color:#888;margin-bottom:8px;display:flex;justify-content:space-between}
+.bench-bar-label span{font-family:var(--mono);font-size:10px}
+.bench-bar-track{height:6px;background:rgba(255,255,255,.04);margin-bottom:4px;position:relative}
+.bench-bar-yours{height:6px;position:absolute;left:0;top:0;transition:width .6s ease}
+.bench-bar-avg-line{position:absolute;top:-3px;bottom:-3px;width:2px;background:rgba(255,255,255,.15)}
+.bench-bar-avg-label{position:absolute;top:-16px;font-family:var(--mono);font-size:8px;color:#444;transform:translateX(-50%)}
+.bench-insight-wrap{max-width:860px;margin-bottom:28px}
+.bench-insight-title{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#555;margin-bottom:12px}
+.bench-insight{padding:14px 18px;border-left:2px solid var(--gold);background:#0f0f0a;margin-bottom:8px;font-size:13px;color:#999;line-height:1.55}
+.bench-insight.good{border-left-color:#4CAF82}
+.bench-insight.warn{border-left-color:#E8923A}
+.bench-insight.bad{border-left-color:#C53A3A}
+.bench-sector-note{font-family:var(--mono);font-size:9px;color:#444;margin-top:16px;line-height:1.6;padding:12px;border:.5px solid rgba(197,151,58,.1)}
+.bench-empty{padding:60px 0;text-align:center;color:#444;font-family:var(--mono);font-size:12px;letter-spacing:.08em;line-height:1.8}
+
+
+.home-screen{background:#0a0a0a}
+.home-hero{padding:80px 56px 72px;border-bottom:.5px solid rgba(197,151,58,.15);position:relative;overflow:hidden}
+.home-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(197,151,58,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(197,151,58,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+.home-hero-inner{position:relative}
+.home-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:24px;display:flex;align-items:center;gap:12px}
+.home-eyebrow::before{content:'';display:block;width:24px;height:1px;background:var(--gold)}
+.home-headline{font-family:var(--serif);font-size:clamp(40px,6vw,72px);color:#f0ece0;line-height:1.02;margin-bottom:28px}
+.home-headline em{font-style:italic;color:var(--gold)}
+.home-sub{font-size:16px;color:#777;max-width:520px;line-height:1.7;margin-bottom:48px}
+.home-cta-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:64px}
+.home-btn-primary{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:14px 36px;background:var(--gold);color:#0a0a0a;border:none;cursor:pointer}
+.home-btn-primary:hover{opacity:.88}
+.home-btn-ghost{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:14px 36px;background:transparent;color:#888;border:.5px solid rgba(197,151,58,.3);cursor:pointer}
+.home-btn-ghost:hover{border-color:var(--gold);color:var(--bone)}
+.home-stats{display:flex;gap:48px;padding-top:48px;border-top:.5px solid rgba(197,151,58,.12)}
+.home-stat-num{font-family:var(--serif);font-size:36px;color:var(--gold)}
+.home-stat-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#555;margin-top:2px}
+.home-features{padding:72px 56px;border-bottom:.5px solid rgba(197,151,58,.15)}
+.home-section-label{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.home-section-title{font-family:var(--serif);font-size:36px;color:#f0ece0;margin-bottom:48px;line-height:1.1}
+.home-feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(197,151,58,.12);border:.5px solid rgba(197,151,58,.12)}
+.home-feature-card{background:#0a0a0a;padding:32px 28px;transition:background .2s;cursor:pointer}
+.home-feature-card:hover{background:#0f0f0a}
+.home-feature-num{font-family:var(--mono);font-size:10px;color:#333;letter-spacing:.1em;margin-bottom:16px}
+.home-feature-title{font-family:var(--serif);font-size:20px;color:#f0ece0;margin-bottom:8px}
+.home-feature-desc{font-size:13px;color:#666;line-height:1.6}
+.home-feature-tag{display:inline-block;margin-top:16px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);border:.5px solid rgba(197,151,58,.25);padding:3px 10px}
+.home-how{padding:72px 56px;border-bottom:.5px solid rgba(197,151,58,.15)}
+.home-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;max-width:860px}
+.home-step{padding:0 24px 0 0;border-right:.5px solid rgba(197,151,58,.1);margin-right:0}
+.home-step:last-child{border-right:none}
+.home-step-num{font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:.1em;margin-bottom:12px}
+.home-step-title{font-family:var(--serif);font-size:17px;color:#f0ece0;margin-bottom:8px;line-height:1.2}
+.home-step-desc{font-size:12px;color:#666;line-height:1.6}
+.home-method{padding:72px 56px;border-bottom:.5px solid rgba(197,151,58,.15);display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+.home-method-text{}
+.home-method-title{font-family:var(--serif);font-size:28px;color:#f0ece0;margin-bottom:16px}
+.home-method-body{font-size:14px;color:#777;line-height:1.7;margin-bottom:16px}
+.home-pillar-list{display:flex;flex-direction:column;gap:0;border:.5px solid rgba(197,151,58,.15)}
+.home-pillar-item{display:grid;grid-template-columns:40px 1fr 60px;align-items:center;padding:14px 18px;border-bottom:.5px solid rgba(197,151,58,.08);gap:12px}
+.home-pillar-item:last-child{border-bottom:none}
+.home-pillar-dot{width:8px;height:8px;border-radius:50%}
+.home-pillar-name{font-size:13px;color:#b8b4a8;font-weight:bold}
+.home-pillar-wt{font-family:var(--mono);font-size:11px;color:var(--gold);text-align:right}
+.home-bench-section{padding:72px 56px;border-bottom:.5px solid rgba(197,151,58,.15)}
+.home-bench-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:860px}
+.home-bench-card{border:.5px solid rgba(197,151,58,.15);background:#0f0f0a;padding:20px 18px}
+.home-bench-sector{font-family:var(--serif);font-size:16px;color:#f0ece0;margin-bottom:6px}
+.home-bench-range{font-family:var(--mono);font-size:10px;color:#555;margin-bottom:10px}
+.home-bench-bar{height:3px;background:rgba(255,255,255,.05);margin-bottom:4px}
+.home-bench-fill{height:3px;background:var(--gold)}
+.home-bench-avg{font-family:var(--mono);font-size:10px;color:var(--gold)}
+.home-cta-section{padding:80px 56px;text-align:center;position:relative;overflow:hidden}
+.home-cta-bg{position:absolute;inset:0;font-family:var(--serif);font-size:220px;color:rgba(197,151,58,.025);display:flex;align-items:center;justify-content:center;pointer-events:none;user-select:none;white-space:nowrap}
+.home-cta-title{font-family:var(--serif);font-size:48px;color:#f0ece0;margin-bottom:16px;position:relative}
+.home-cta-sub{font-size:16px;color:#666;margin-bottom:40px;position:relative}
+.home-demo-banner{background:rgba(197,151,58,.06);border:.5px solid rgba(197,151,58,.2);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;margin:24px 0 0;max-width:860px}
+.home-demo-text{font-size:13px;color:#888}
+.home-demo-text strong{color:var(--bone)}
+.gate-overlay{position:fixed;inset:0;background:#0a0a0a;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+.gate-box{max-width:480px;width:100%;border:.5px solid rgba(197,151,58,.3);background:#0f0f0a;padding:48px 40px}
+.gate-logo{font-family:var(--serif);font-size:22px;color:var(--gold);margin-bottom:32px}
+.gate-logo span{color:var(--bone)}
+.gate-headline{font-family:var(--serif);font-size:32px;color:#f0ece0;line-height:1.1;margin-bottom:12px}
+.gate-headline em{font-style:italic;color:var(--gold)}
+.gate-sub{font-size:14px;color:#666;line-height:1.65;margin-bottom:32px}
+.gate-features{display:flex;flex-direction:column;gap:8px;margin-bottom:32px;padding:20px;border:.5px solid rgba(197,151,58,.1)}
+.gate-feature{display:flex;align-items:center;gap:10px;font-size:12px;color:#888}
+.gate-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);flex-shrink:0}
+.gate-form{display:flex;flex-direction:column;gap:10px}
+.gate-input{width:100%;background:#0a0a0a;border:.5px solid rgba(197,151,58,.3);color:var(--bone);font-family:var(--sans);font-size:14px;padding:13px 16px;outline:none}
+.gate-input:focus{border-color:var(--gold)}
+.gate-btn{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:14px;background:var(--gold);color:#0a0a0a;border:none;cursor:pointer}
+.gate-error{font-family:var(--mono);font-size:10px;color:#C53A3A;min-height:14px}
+.gate-privacy{font-family:var(--mono);font-size:9px;color:#333;margin-top:12px;text-align:center}
+.gate-skip{font-family:var(--mono);font-size:9px;color:#444;text-align:center;margin-top:10px;cursor:pointer;text-decoration:underline}
+
+/* ── ANIMATIONS & MICRO-INTERACTIONS ── */
+
+/* Score reveal */
+@keyframes countUp{from{opacity:0;transform:translateY(20px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes tierFadeIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes glowPulse{0%,100%{text-shadow:0 0 0 transparent}50%{text-shadow:0 0 32px currentColor}}
+@keyframes barGrow{from{width:0}to{width:var(--w)}}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes radarDraw{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes tickerPulse{0%,100%{opacity:1}50%{opacity:.6}}
+@keyframes optSelect{0%{transform:translateX(-4px)}100%{transform:translateX(0)}}
+@keyframes progressShine{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes cardReveal{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spinIn{from{opacity:0;transform:rotate(-8deg) scale(.9)}to{opacity:1;transform:rotate(0) scale(1)}}
+
+.r-big{transition:color .6s ease}
+.r-big.animating{animation:countUp .5s cubic-bezier(.34,1.56,.64,1) forwards, glowPulse 1.2s ease .5s 2}
+.r-tier.animating{animation:tierFadeIn .4s ease .3s both}
+.r-quote.animating{animation:fadeSlideUp .5s ease .5s both}
+.r-sub.animating{animation:fadeSlideUp .5s ease .6s both}
+.r-card{animation:cardReveal .4s ease both}
+.r-card:nth-child(1){animation-delay:.1s}
+.r-card:nth-child(2){animation-delay:.2s}
+.r-card:nth-child(3){animation-delay:.3s}
+.r-card:nth-child(4){animation-delay:.4s}
+.r-card-fill{animation:barGrow .8s cubic-bezier(.4,0,.2,1) .3s both;width:var(--w,0%)}
+
+/* Radar chart */
+.radar-wrap{margin-bottom:28px;background:#0f0f0a;border:.5px solid var(--border);padding:24px;animation:radarDraw .6s cubic-bezier(.34,1.2,.64,1) .2s both}
+.radar-wrap canvas{display:block;margin:0 auto}
+
+/* Nav live ticker */
+.nav-score-ticker{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--gold);border:.5px solid rgba(197,151,58,.3);padding:4px 12px;display:none;align-items:center;gap:6px}
+.nav-score-ticker.visible{display:flex}
+.nav-score-ticker.pulse{animation:tickerPulse .4s ease}
+.ticker-dot{width:5px;height:5px;border-radius:50%;background:var(--gold)}
+
+/* Question micro-interactions */
+.q-opt{transition:border-color .15s,background .15s,transform .15s;transform:translateX(0)}
+.q-opt:hover{transform:translateX(3px)}
+.q-opt.sel{animation:optSelect .2s ease}
+.q-opt.sel .q-opt-score{animation:spinIn .3s cubic-bezier(.34,1.56,.64,1)}
+
+/* Progress bar shine */
+.progress-fill{background:linear-gradient(90deg,var(--gold) 0%,#f0c060 50%,var(--gold) 100%);background-size:200% 100%;transition:width .4s ease}
+.progress-fill.active{animation:progressShine 2s linear infinite}
+
+/* Pillar tab active indicator */
+.pillar-tab{transition:color .2s,border-color .2s}
+.pillar-tab.active{position:relative}
+.pillar-tab.active::after{content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);width:20px;height:2px;background:var(--gold)}
+
+/* Sidebar live score */
+.live-num{transition:color .4s ease,transform .2s ease}
+.live-num.bump{transform:scale(1.08)}
+.pmini-fill{transition:width .5s cubic-bezier(.4,0,.2,1)}
+
+/* Verdict block reveal */
+.r-verdict-block{animation:fadeSlideUp .5s ease .7s both}
+.flags-section{animation:fadeSlideUp .5s ease .8s both}
+
+/* Flag rows stagger */
+.flag-row{animation:fadeSlideUp .3s ease both}
+.flag-row:nth-child(1){animation-delay:.85s}
+.flag-row:nth-child(2){animation-delay:.9s}
+.flag-row:nth-child(3){animation-delay:.95s}
+.flag-row:nth-child(4){animation-delay:1s}
+.flag-row:nth-child(5){animation-delay:1.05s}
+
+/* Home page hover interactions */
+.home-feature-card{transition:background .2s,transform .2s,border-color .2s}
+.home-feature-card:hover{transform:translateY(-2px);border-color:rgba(197,151,58,.35)}
+.home-pillar-item{transition:background .15s}
+.home-pillar-item:hover{background:rgba(197,151,58,.04)}
+
+/* Mode card interactions */
+.mode-card{transition:border-color .2s,background .2s,transform .15s}
+.mode-card:hover{transform:translateY(-2px)}
+.mode-card.selected{transform:translateY(-2px)}
+
+/* Q block reveal on tab switch */
+.q-block{animation:fadeSlideUp .25s ease both}
+.q-block:nth-child(2){animation-delay:.05s}
+.q-block:nth-child(3){animation-delay:.1s}
+.q-block:nth-child(4){animation-delay:.15s}
+.q-block:nth-child(5){animation-delay:.2s}
+.q-block:nth-child(6){animation-delay:.25s}
+
+/* Action buttons */
+.btn-action,.btn-gold{transition:opacity .2s,transform .15s}
+.btn-action:hover,.btn-gold:hover{transform:translateY(-1px)}
+.btn-action:active,.btn-gold:active{transform:translateY(0)}
+
+/* Reduce motion */
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+
+
+.ts-screen{padding:40px}
+.ts-empty{padding:60px 0;text-align:center;color:#444;font-family:var(--mono);font-size:12px;letter-spacing:.08em;line-height:1.8}
+.ts-select-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:700px;margin-bottom:28px}
+.ts-select{width:100%;background:#0f0f0a;border:.5px solid var(--border);color:var(--bone);font-family:var(--sans);font-size:13px;padding:11px 14px;outline:none;appearance:none;cursor:pointer}
+.ts-select:focus{border-color:var(--gold)}
+.ts-doc{max-width:740px;background:#0f0f0a;border:.5px solid var(--border);padding:0;margin-bottom:24px}
+.ts-doc-header{background:#0a0a0a;border-bottom:.5px solid var(--border);padding:22px 32px;display:flex;justify-content:space-between;align-items:flex-start}
+.ts-doc-brand{font-family:var(--serif);font-size:16px;color:var(--gold);letter-spacing:.04em}
+.ts-doc-brand span{color:var(--bone)}
+.ts-doc-title{font-family:var(--serif);font-size:11px;color:#555;letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+.ts-doc-meta{text-align:right;font-family:var(--mono);font-size:9px;color:#444;line-height:1.7}
+.ts-doc-body{padding:28px 32px}
+.ts-section{margin-bottom:28px;padding-bottom:28px;border-bottom:.5px solid rgba(197,151,58,.08)}
+.ts-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.ts-section-title{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.ts-row{display:grid;grid-template-columns:220px 1fr;gap:12px;margin-bottom:10px;align-items:baseline}
+.ts-row-label{font-family:var(--mono);font-size:10px;color:#555;letter-spacing:.06em}
+.ts-row-value{font-size:13px;color:var(--bone);line-height:1.5}
+.ts-row-value.highlight{color:var(--gold);font-weight:bold}
+.ts-row-value.warn{color:#E8923A}
+.ts-row-value.danger{color:#C53A3A}
+.ts-row-value.good{color:#4CAF82}
+.ts-condition{background:#111;border-left:2px solid var(--gold);padding:10px 14px;margin-bottom:8px;font-size:12px;color:#999;line-height:1.55}
+.ts-condition.hard{border-left-color:#C53A3A;background:rgba(197,58,58,.04)}
+.ts-condition.soft{border-left-color:#C5973A;background:rgba(197,151,58,.04)}
+.ts-condition.milestone{border-left-color:#4CAF82;background:rgba(76,175,130,.04)}
+.ts-condition-tag{font-family:var(--mono);font-size:8px;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.ts-risk-table{width:100%;border-collapse:collapse;margin-bottom:0}
+.ts-risk-table th{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:8px 12px;text-align:left;background:#0a0a0a;color:#555;border:.5px solid rgba(197,151,58,.1)}
+.ts-risk-table td{padding:9px 12px;border:.5px solid rgba(197,151,58,.08);font-size:12px;color:#999;vertical-align:top;line-height:1.5}
+.ts-risk-table tr:hover td{background:rgba(197,151,58,.03)}
+.ts-score-pill{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:bold;padding:2px 8px}
+.ts-disclaimer{font-family:var(--mono);font-size:9px;color:#333;line-height:1.65;padding:16px 18px;border:.5px solid rgba(197,151,58,.06);margin-top:16px}
+.ts-actions{display:flex;gap:12px;margin-top:16px;max-width:740px}
+.ts-edit-row{display:grid;grid-template-columns:220px 1fr;gap:12px;margin-bottom:8px;align-items:center}
+.ts-input{width:100%;background:#0a0a0a;border:.5px solid var(--border);color:var(--bone);font-family:var(--sans);font-size:12px;padding:8px 10px;outline:none}
+.ts-input:focus{border-color:var(--gold)}
+</style>
+</head>
+<body>
+
+<form name="ttx-gate" netlify netlify-honeypot="bot-field" hidden>
+  <input type="text" name="name"><input type="email" name="email"><input type="text" name="role">
+</form>
+<div class="gate-overlay" id="gate-overlay">
+  <div class="gate-box">
+    <div class="gate-logo">Think Tank <span>X</span></div>
+    <h1 class="gate-headline">Risk before<br><em>reward.</em></h1>
+    <p class="gate-sub">Enter your email to access the TTX Startup Risk Framework.</p>
+    <div class="gate-features">
+      <div class="gate-feature"><div class="gate-dot"></div>22-question risk assessment, 4 weighted pillars</div>
+      <div class="gate-feature"><div class="gate-dot"></div>Sector benchmark, 7 industries x 3 stages</div>
+      <div class="gate-feature"><div class="gate-dot"></div>Risk-adjusted term sheet generator</div>
+      <div class="gate-feature"><div class="gate-dot"></div>Portfolio comparison with radar overlay</div>
+      <div class="gate-feature"><div class="gate-dot"></div>PDF report and shareable score card</div>
+    </div>
+    <div class="gate-form">
+      <input class="gate-input" id="gate-name" type="text" placeholder="Your name">
+      <input class="gate-input" id="gate-email" type="email" placeholder="Your email address">
+      <select class="gate-input" id="gate-role" style="cursor:pointer">
+        <option value="" disabled selected>I am a...</option>
+        <option value="investor">Investor / VC / Angel</option>
+        <option value="founder">Founder / Co-founder</option>
+        <option value="advisor">Advisor / Consultant</option>
+        <option value="accelerator">Accelerator / Incubator</option>
+        <option value="other">Other</option>
+      </select>
+      <div class="gate-error" id="gate-error"></div>
+      <button class="gate-btn" id="gate-submit-btn" type="button">Access the Platform</button>
+    </div>
+    <p class="gate-privacy">No spam. TTX uses your email only to send platform updates.</p>
+    <div id="gate-skip-btn" class="gate-skip">Already registered? Continue</div>
+  </div>
+</div>
+
+
+<nav class="nav">
+  <div class="nav-logo">Think Tank <span>X</span></div>
+  <div class="nav-tabs">
+    <div class="nav-tab" onclick="showTab('home')">Home</div>
+    <div class="nav-tab active" onclick="showTab('calculator')">Calculator</div>
+    <div class="nav-tab" onclick="showTab('scorecard')">Score Card</div>
+    <div class="nav-tab" onclick="showTab('compare')">Compare</div>
+    <div class="nav-tab" onclick="showTab('benchmark')">Benchmark</div>
+    <div class="nav-tab" onclick="showTab('termsheet')">Term Sheet</div>
+    <div class="nav-tab" onclick="showTab('waitlist')">Research Waitlist</div>
+    <div class="nav-tab" onclick="showTab('admin')" id="admin-tab" style="display:none">Admin</div>
+    <div class="nav-tab" onclick="showTab('history')">History <span id="hist-count" style="display:none;font-size:8px;background:var(--gold);color:#0a0a0a;padding:1px 5px;margin-left:4px;vertical-align:middle"></span></div>
+  </div>
+  <div class="nav-score-ticker" id="nav-ticker"><div class="ticker-dot"></div><span id="nav-ticker-val">—</span></div>
+  <div class="nav-badge">Risk Framework v1.0</div>
+</nav>
+
+
+<!-- HOME TAB -->
+<div id="tab-home" class="screen home-screen active">
+
+  <!-- HERO -->
+  <div class="home-hero">
+    <div class="home-grid-bg"></div>
+    <div class="home-hero-inner">
+      <div class="home-eyebrow">TTX Risk Framework v1.0</div>
+      <h1 class="home-headline">From <em>gamblers</em><br>to strategic thinkers.</h1>
+      <p class="home-sub">Think Tank X transforms how investors and founders assess startup risk — through a structured, evidence-based framework that scores four critical dimensions and generates actionable, data-backed outputs.</p>
+      <div class="home-cta-row">
+        <button class="home-btn-primary" onclick="showTab('calculator')">Start Assessment</button>
+        <button class="home-btn-ghost" onclick="loadDemoAssessment()">View Demo Report</button>
+      </div>
+      <div class="home-stats">
+        <div><div class="home-stat-num">4</div><div class="home-stat-label">Risk pillars</div></div>
+        <div><div class="home-stat-num">22</div><div class="home-stat-label">Scored questions</div></div>
+        <div><div class="home-stat-num">7</div><div class="home-stat-label">Sector benchmarks</div></div>
+        <div><div class="home-stat-num">6</div><div class="home-stat-label">Output tools</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="home-features">
+    <div class="home-section-label">What's included</div>
+    <div class="home-section-title">The complete risk intelligence platform</div>
+    <div class="home-feature-grid">
+      <div class="home-feature-card" onclick="showTab('calculator')">
+        <div class="home-feature-num">01</div>
+        <div class="home-feature-title">Risk Calculator</div>
+        <p class="home-feature-desc">22 questions across 4 weighted pillars. Investor and startup modes. Live composite score with Go / No-Go verdict.</p>
+        <span class="home-feature-tag">Core tool</span>
+      </div>
+      <div class="home-feature-card" onclick="showTab('calculator')">
+        <div class="home-feature-num">02</div>
+        <div class="home-feature-title">PDF Report</div>
+        <p class="home-feature-desc">Branded, multi-page assessment report. Per-pillar detail, risk flags, verdict. Ready to attach to investor memos.</p>
+        <span class="home-feature-tag">Export</span>
+      </div>
+      <div class="home-feature-card" onclick="showTab('scorecard')">
+        <div class="home-feature-num">03</div>
+        <div class="home-feature-title">Score Card</div>
+        <p class="home-feature-desc">1200×630 PNG designed for LinkedIn posts, pitch decks, and investor emails. Auto-fills from your assessment.</p>
+        <span class="home-feature-tag">Shareable</span>
+      </div>
+      <div class="home-feature-card" onclick="showTab('compare')">
+        <div class="home-feature-num">04</div>
+        <div class="home-feature-title">Portfolio Compare</div>
+        <p class="home-feature-desc">Side-by-side radar overlay, pillar table with edge indicators, and verdict summaries for two ventures.</p>
+        <span class="home-feature-tag">Investor</span>
+      </div>
+      <div class="home-feature-card" onclick="showTab('benchmark')">
+        <div class="home-feature-num">05</div>
+        <div class="home-feature-title">Sector Benchmark</div>
+        <p class="home-feature-desc">Compare your score against 7 sector averages at Pre-Seed, Seed, and Series A. Percentile, gap analysis, insights.</p>
+        <span class="home-feature-tag">Research</span>
+      </div>
+      <div class="home-feature-card" onclick="showTab('termsheet')">
+        <div class="home-feature-num">06</div>
+        <div class="home-feature-title">Term Sheet Generator</div>
+        <p class="home-feature-desc">Risk-adjusted deal terms, conditions precedent, tranched milestones, and investor protections — all scaled to your TTX score.</p>
+        <span class="home-feature-tag">Deal tool</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="home-how">
+    <div class="home-section-label">How it works</div>
+    <div class="home-section-title" style="margin-bottom:40px">Four steps from assessment to decision</div>
+    <div class="home-steps">
+      <div class="home-step">
+        <div class="home-step-num">01 — Select mode</div>
+        <div class="home-step-title">Investor or Startup</div>
+        <p class="home-step-desc">Choose your perspective. The scoring engine is identical — only the question framing changes.</p>
+      </div>
+      <div class="home-step" style="padding-left:24px">
+        <div class="home-step-num">02 — Answer 22 questions</div>
+        <div class="home-step-title">Score each pillar</div>
+        <p class="home-step-desc">Each question scores 1–5. The live sidebar updates your composite score in real time.</p>
+      </div>
+      <div class="home-step" style="padding-left:24px">
+        <div class="home-step-num">03 — Review results</div>
+        <div class="home-step-title">Composite + breakdown</div>
+        <p class="home-step-desc">See your 0–100 score, pillar breakdown, risk flags, and Go / Conditional Go / No-Go verdict.</p>
+      </div>
+      <div class="home-step" style="padding-left:24px">
+        <div class="home-step-num">04 — Act on outputs</div>
+        <div class="home-step-title">Export and benchmark</div>
+        <p class="home-step-desc">Download PDF, build score card, compare ventures, benchmark vs sector, or generate term sheet.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- METHODOLOGY -->
+  <div class="home-method">
+    <div class="home-method-text">
+      <div class="home-section-label">The methodology</div>
+      <div class="home-method-title">Evidence-based weighting — not intuition</div>
+      <p class="home-method-body">The TTX framework weights each pillar based on empirical research into why early-stage startups fail. Team quality is weighted highest not because it sounds right, but because it is the single most consistent predictor of outcome across pre-seed and seed-stage ventures.</p>
+      <p class="home-method-body">Each pillar score is the average of its questions, scaled to 100, then multiplied by its weight. The composite is fully auditable — every number traces back to a specific answer.</p>
+      <p class="home-method-body" style="font-family:var(--mono);font-size:11px;color:#555">Composite = Σ (Pillar Score × Pillar Weight)</p>
+    </div>
+    <div class="home-pillar-list">
+      <div class="home-pillar-item">
+        <div class="home-pillar-dot" style="background:#D85A30"></div>
+        <div>
+          <div class="home-pillar-name">Team &amp; Founder</div>
+          <div style="font-size:11px;color:#555;margin-top:2px">Experience, equity structure, commitment, team completeness</div>
+        </div>
+        <div class="home-pillar-wt">30%</div>
+      </div>
+      <div class="home-pillar-item">
+        <div class="home-pillar-dot" style="background:#BA7517"></div>
+        <div>
+          <div class="home-pillar-name">Market &amp; Competition</div>
+          <div style="font-size:11px;color:#555;margin-top:2px">TAM, differentiation, demand evidence, competitive intelligence</div>
+        </div>
+        <div class="home-pillar-wt">25%</div>
+      </div>
+      <div class="home-pillar-item">
+        <div class="home-pillar-dot" style="background:#185FA5"></div>
+        <div>
+          <div class="home-pillar-name">Financial &amp; Runway</div>
+          <div style="font-size:11px;color:#555;margin-top:2px">Runway, burn rate, unit economics, financial planning</div>
+        </div>
+        <div class="home-pillar-wt">25%</div>
+      </div>
+      <div class="home-pillar-item">
+        <div class="home-pillar-dot" style="background:#0F6E56"></div>
+        <div>
+          <div class="home-pillar-name">Product &amp; Technology</div>
+          <div style="font-size:11px;color:#555;margin-top:2px">Stage, defensibility, user data, scalability, roadmap</div>
+        </div>
+        <div class="home-pillar-wt">20%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BENCHMARK PREVIEW -->
+  <div class="home-bench-section">
+    <div class="home-section-label">Sector benchmarks</div>
+    <div class="home-section-title" style="margin-bottom:12px">How does your sector typically score?</div>
+    <p style="font-size:14px;color:#666;margin-bottom:32px;max-width:560px;line-height:1.6">TTX benchmarks are calibrated from early-stage deal analysis across sectors. Seed-stage averages represent the median TTX score of ventures that successfully raised at that stage.</p>
+    <div class="home-bench-grid">
+      <div class="home-bench-card"><div class="home-bench-sector">Fintech</div><div class="home-bench-range">Seed avg</div><div class="home-bench-bar"><div class="home-bench-fill" style="width:57%"></div></div><div class="home-bench-avg">57 / 100</div></div>
+      <div class="home-bench-card"><div class="home-bench-sector">B2B SaaS</div><div class="home-bench-range">Seed avg</div><div class="home-bench-bar"><div class="home-bench-fill" style="width:59%"></div></div><div class="home-bench-avg">59 / 100</div></div>
+      <div class="home-bench-card"><div class="home-bench-sector">Climate</div><div class="home-bench-range">Seed avg</div><div class="home-bench-bar"><div class="home-bench-fill" style="width:54%"></div></div><div class="home-bench-avg">54 / 100</div></div>
+      <div class="home-bench-card"><div class="home-bench-sector">Deep Tech</div><div class="home-bench-range">Seed avg</div><div class="home-bench-bar"><div class="home-bench-fill" style="width:58%"></div></div><div class="home-bench-avg">58 / 100</div></div>
+    </div>
+    <p style="font-family:var(--mono);font-size:9px;color:#333;margin-top:16px;line-height:1.65">Benchmarks cover 7 sectors × 3 stages (Pre-Seed, Seed, Series A). Full benchmark data available in the Benchmark tab.</p>
+  </div>
+
+  <!-- BOTTOM CTA -->
+  <div class="home-cta-section">
+    <div class="home-cta-bg">TTX</div>
+    <h2 class="home-cta-title">Risk before reward.</h2>
+    <p class="home-cta-sub">Start your first assessment in under 10 minutes.</p>
+    <div style="display:flex;gap:16px;justify-content:center;position:relative">
+      <button class="home-btn-primary" onclick="showTab('calculator')">Start Assessment</button>
+      <button class="home-btn-ghost" onclick="loadDemoAssessment()">Load Demo Data</button>
+    </div>
+    <div class="home-demo-banner" style="margin:32px auto 0">
+      <span class="home-demo-text"><strong>New to TTX?</strong> Load the demo assessment to see a fully completed report, benchmark, and term sheet before running your own.</span>
+      <button class="home-btn-ghost" style="padding:8px 20px;font-size:10px;white-space:nowrap" onclick="loadDemoAssessment()">Load demo →</button>
+    </div>
+  </div>
+
+</div><!-- end home tab -->
+
+<!-- ══════════════════════════════════════════════════════════ CALCULATOR TAB -->
+<div id="tab-calculator" class="screen">
+
+  <!-- MODE SELECT -->
+  <div id="scr-mode" class="screen active mode-screen">
+    <div class="eyebrow">TTX Startup Risk Calculator</div>
+    <h1 class="headline">Who are you<br>in this deal?</h1>
+    <p class="subline">Your mode shapes how questions are framed. The scoring engine, PDF report, and Score Card are identical either way.</p>
+    <div class="mode-cards">
+      <div class="mode-card" id="card-investor" onclick="selectMode('investor')">
+        <div class="mode-card-title">Investor</div>
+        <p class="mode-card-desc">Evaluate a startup you're considering funding. Questions focus on due diligence signals.</p>
+      </div>
+      <div class="mode-card" id="card-startup" onclick="selectMode('startup')">
+        <div class="mode-card-title">Startup</div>
+        <p class="mode-card-desc">Assess your own venture's risk profile before fundraising or strategic pivots.</p>
+      </div>
+    </div>
+    <label class="name-label" for="sni">Startup / venture name</label>
+    <input class="name-input" id="sni" type="text" placeholder="e.g. Terra Earth" oninput="checkStart()">
+    <button class="btn-gold full" id="btn-start" disabled onclick="startAssessment()">Begin Assessment</button>
+  </div>
+
+  <!-- ASSESSMENT -->
+  <div id="scr-assessment" class="screen">
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span class="progress-label" id="prog-label">Team &amp; Founder</span>
+        <span class="progress-count" id="prog-count">0 / 22 answered</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="pillar-tabs" id="pillar-tabs"></div>
+    <div class="assessment-layout">
+      <div id="q-main" class="q-main"></div>
+      <div class="sidebar">
+        <div class="sidebar-title">Live Risk Score</div>
+        <div class="live-num" id="live-num" style="color:#555">—</div>
+        <div class="live-tier" id="live-tier">Answer to score</div>
+        <div id="pillar-minis"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="scr-results" class="screen">
+    <div class="results-wrap">
+      <div class="r-hero">
+        <div class="r-tag" id="r-tag"></div>
+        <div class="r-big" id="r-big">0</div>
+        <div class="r-tier" id="r-tier-badge"></div>
+        <div class="r-quote" id="r-quote"></div>
+        <p class="r-sub" id="r-sub"></p>
+      </div>
+
+      <!-- PDF DOWNLOAD -->
+      <div class="pdf-section">
+        <div class="pdf-header">
+          <div class="pdf-title">Download TTX Risk Report</div>
+        </div>
+        <p class="pdf-desc">Your complete assessment packaged as a branded PDF — ready to attach to investor memos or board decks.</p>
+        <div class="pdf-preview" id="pdf-preview"></div>
+        <button class="btn-action" id="btn-pdf" onclick="generatePDF()">Download PDF Report</button>
+        <div class="dl-status" id="pdf-status"></div>
+      </div>
+
+      <!-- RADAR CHART -->
+      <div class="radar-wrap" id="radar-wrap"><canvas id="radar-canvas" width="520" height="280"></canvas></div>
+
+      <!-- PILLAR CARDS -->
+      <div class="r-grid" id="r-cards"></div>
+
+      <!-- VERDICT -->
+      <div class="r-verdict-block" id="r-verdict-block"></div>
+
+      <!-- FLAGS -->
+      <div class="flags-section">
+        <div class="flags-title">Key Risk Signals</div>
+        <div id="r-flags"></div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="r-actions">
+        <button class="btn-outline" onclick="restartApp()">Start Over</button>
+        <button class="btn-action" onclick="exportBundledReport()">Export Full Report</button>
+        <button class="btn-action" onclick="goToScoreCard()">Score Card</button>
+        <button class="btn-action" id="btn-rec">Get Recommendations</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end calculator tab -->
+
+<!-- ══════════════════════════════════════════════════════════ SCORECARD TAB -->
+<div id="tab-scorecard" class="screen scorecard-screen">
+  <div class="eyebrow">Score Card Builder</div>
+  <h1 class="headline" style="font-size:32px;margin-bottom:8px">Build your TTX Score Card</h1>
+  <p class="subline" style="margin-bottom:32px">A shareable 1200×630 image for LinkedIn posts, pitch decks, and investor emails.</p>
+
+  <div class="form-grid">
+    <div><label class="fl">Venture name</label><input class="fi" id="sc-name" placeholder="e.g. Terra Earth" oninput="updateSC()"></div>
+    <div><label class="fl">Assessment mode</label>
+      <select class="fsel" id="sc-mode" onchange="updateSC()">
+        <option>Startup assessment</option>
+        <option>Investor assessment</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-grid">
+    <div><label class="fl">Composite score (0–100)</label><input class="fi-num" id="sc-score" type="number" min="0" max="100" value="56" oninput="updateSC()"></div>
+    <div><label class="fl">Verdict</label>
+      <select class="fsel" id="sc-verdict" onchange="updateSC()">
+        <option>Conditional Go</option>
+        <option>Go</option>
+        <option>No-Go</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-grid-4">
+    <div><label class="fl">Team &amp; Founder</label><input class="fi-num" id="sc-team" type="number" min="0" max="100" value="53" oninput="updateSC()"></div>
+    <div><label class="fl">Market</label><input class="fi-num" id="sc-market" type="number" min="0" max="100" value="68" oninput="updateSC()"></div>
+    <div><label class="fl">Financial</label><input class="fi-num" id="sc-fin" type="number" min="0" max="100" value="36" oninput="updateSC()"></div>
+    <div><label class="fl">Product &amp; Tech</label><input class="fi-num" id="sc-prod" type="number" min="0" max="100" value="68" oninput="updateSC()"></div>
+  </div>
+
+  <label class="fl" style="margin-bottom:8px">Preview — 600 × 315 (LinkedIn / pitch deck ratio)</label>
+  <div class="sc" id="score-card">
+    <div class="sc-grid"></div>
+    <div class="sc-accent"></div>
+    <div class="sc-top">
+      <div class="sc-brand">Think Tank <span>X</span></div>
+      <div class="sc-tag">Startup Risk Assessment</div>
+    </div>
+    <div class="sc-body">
+      <div class="sc-left">
+        <div>
+          <div class="sc-vlabel">Venture</div>
+          <div class="sc-vname" id="sc-d-name">Terra Earth</div>
+          <div class="sc-vmode" id="sc-d-mode">Startup assessment</div>
+        </div>
+        <div>
+          <div class="sc-snum" id="sc-d-score" style="color:#C5973A">56</div>
+          <div class="sc-sdenom">/ 100 composite</div>
+          <div class="sc-badge" id="sc-d-tier" style="background:rgba(197,151,58,.15);color:#C5973A">Moderate Risk</div>
+        </div>
+      </div>
+      <div class="sc-right">
+        <div>
+          <div class="sc-plabel">Risk by pillar</div>
+          <div class="sc-pillars" id="sc-d-pillars"></div>
+        </div>
+        <div class="sc-verd">
+          <div>
+            <div class="sc-vl">Verdict</div>
+            <div class="sc-vv" id="sc-d-verdict" style="color:#C5973A">Conditional Go</div>
+          </div>
+          <div class="sc-vdesc" id="sc-d-desc">Promising indicators. Material risks require attention.</div>
+        </div>
+      </div>
+    </div>
+    <div class="sc-bottom">
+      <div class="sc-bl" id="sc-d-date"></div>
+      <div class="sc-br">thinktankx.com / ttx-risk-framework</div>
+    </div>
+  </div>
+
+  <div class="sc-actions">
+    <button class="btn-sc-dl" onclick="downloadSC()">Download PNG (1200×630)</button>
+    <button class="btn-sc-copy" onclick="copySCCaption()">Copy LinkedIn caption</button>
+  </div>
+  <div class="sc-note">PNG exports at 2× resolution — optimised for LinkedIn posts, pitch deck slides, and investor emails.</div>
+  <div class="sc-status" id="sc-status"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ INLINE jsPDF -->
+<!-- We implement a minimal pure-JS PDF builder without CDN -->
+<script>
+// ── Minimal PDF writer (no external library) ─────────────────────────────────
+// Generates a valid PDF/1.4 with text, coloured rects, and lines
+const PDFWriter = (function(){
+  function encode(s){
+    let o='';
+    for(let i=0;i<s.length;i++){
+      const c=s.charCodeAt(i);
+      if(c===40)o+='\\(';
+      else if(c===41)o+='\\)';
+      else if(c===92)o+='\\\\';
+      else if(c<32||c>126)o+='\\'+('000'+c.toString(8)).slice(-3);
+      else o+=s[i];
+    }
+    return o;
+  }
+  function rgb(hex){
+    const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;
+    return`${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)}`;
+  }
+  return function(){
+    const W=612,H=792;
+    let ops=[],objs=[],xref=[],body='';
+    let pageOps=[];
+    let pageNum=1;
+
+    function op(s){pageOps.push(s)}
+
+    function newPage(){
+      pageOps=[];
+      // Header bar
+      setFill('#0a0a0a'); rect(0,H-32,W,32,true);
+      setFill('#C5973A'); rect(0,H-33,W,1.5,true);
+      // Footer
+      setStroke('#DDDDDD'); setLineWidth(0.5); line(43,28,W-43,28);
+    }
+
+    function setFill(hex){op(`${rgb(hex)} rg`)}
+    function setStroke(hex){op(`${rgb(hex)} RG`)}
+    function setLineWidth(w){op(`${w} w`)}
+    function rect(x,y,w,h,fill,stroke){
+      op(`${x.toFixed(1)} ${y.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)} re`);
+      if(fill&&stroke)op('B');else if(fill)op('f');else op('S');
+    }
+    function line(x1,y1,x2,y2){op(`${x1.toFixed(1)} ${y1.toFixed(1)} m ${x2.toFixed(1)} ${y2.toFixed(1)} l S`)}
+    function text(s,x,y,size,bold,hex){
+      const font=bold?'/F2':'  /F1';
+      op(`BT ${font} ${size} Tf ${rgb(hex||'#444444')} rg ${x.toFixed(1)} ${y.toFixed(1)} Td (${encode(s)}) Tj ET`);
+    }
+    function textRight(s,x,y,size,bold,hex){
+      // Approximate right-align by estimating string width (0.5 * size per char)
+      const approxW=s.length*size*0.5;
+      text(s,x-approxW,y,size,bold,hex);
+    }
+
+    function buildPDF(pages){
+      let pdfBody='%PDF-1.4\n';
+      const offsets=[];
+      const objects=[];
+
+      // Each page is an array of ops strings
+      const streamContents=pages.map(p=>p.join('\n'));
+
+      // obj 1: catalog
+      objects.push('1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+      // obj 2: pages
+      const pageRefs=pages.map((_,i)=>`${4+i} 0 R`).join(' ');
+      objects.push(`2 0 obj\n<< /Type /Pages /Kids [${pageRefs}] /Count ${pages.length} >>\nendobj\n`);
+      // obj 3: font resources
+      objects.push('3 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n');
+      // obj 4+: page objects and content streams
+      let objIdx=4;
+      const contentRefs=[];
+      pages.forEach((p,i)=>{
+        const stream=streamContents[i];
+        const streamLen=stream.length;
+        contentRefs.push(objIdx+1);
+        objects.push(`${objIdx} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents ${objIdx+1} 0 R /Resources << /Font << /F1 3 0 R /F2 3 0 R >> >> >>\nendobj\n`);
+        objects.push(`${objIdx+1} 0 obj\n<< /Length ${streamLen} >>\nstream\n${stream}\nendstream\nendobj\n`);
+        objIdx+=2;
+      });
+
+      // Build body with offsets
+      let offset=pdfBody.length;
+      const finalObjs=objects.map(o=>{
+        offsets.push(offset);
+        offset+=o.length;
+        return o;
+      });
+
+      pdfBody+=finalObjs.join('');
+      const xrefOffset=pdfBody.length;
+      pdfBody+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
+      offsets.forEach(o=>{pdfBody+=`${String(o).padStart(10,'0')} 00000 n \n`});
+      pdfBody+=`trailer\n<< /Size ${objects.length+1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+      return pdfBody;
+    }
+
+    return {op,setFill,setStroke,setLineWidth,rect,line,text,textRight,newPage,
+      getPageOps:()=>[...pageOps],W,H,encode,rgb};
+  };
+})();
+</script>
+
+<!-- ══════════════════════════════════════════════════════════ MAIN APP LOGIC -->
+<script>
+// ── Question data ────────────────────────────────────────────────────────────
+const PILLARS=[
+  {id:'team',label:'Team & Founder',weight:.30,color:'#D85A30',questions:{
+    investor:[
+      {text:'Do the founders have direct industry experience relevant to this startup?',opts:[{s:1,t:'No relevant experience'},{s:2,t:'Adjacent experience only'},{s:3,t:'Some relevant experience'},{s:4,t:'Strong relevant experience'},{s:5,t:'Deep domain expertise'}]},
+      {text:'Has the founding team built and exited a company before?',opts:[{s:1,t:'No prior startup experience'},{s:2,t:'Early-stage experience, no exit'},{s:3,t:'One prior venture, no exit'},{s:4,t:'Prior exit under $10M'},{s:5,t:'Successful exit $10M+'}]},
+      {text:'How complete and complementary is the founding team?',opts:[{s:1,t:'Solo founder, no team'},{s:2,t:'Solo with 1 hire'},{s:3,t:'2 founders, overlapping skills'},{s:4,t:'2–3 founders, complementary'},{s:5,t:'Full balanced team'}]},
+      {text:'Is there a clear, motivated technical co-founder or CTO?',opts:[{s:1,t:'No technical leadership'},{s:2,t:'Outsourced tech only'},{s:3,t:'Technical hire, not co-founder'},{s:4,t:'Strong technical co-founder'},{s:5,t:'World-class technical lead'}]},
+      {text:'What is the equity and vesting structure?',opts:[{s:1,t:'No vesting, unequal split'},{s:2,t:'Vesting exists but problematic'},{s:3,t:'Standard vesting, uneven split'},{s:4,t:'Standard vesting, fair split'},{s:5,t:'Optimised vesting + cliff'}]},
+      {text:'How aligned is the team on mission, vision, and long-term commitment?',opts:[{s:1,t:'Unclear or part-time team'},{s:2,t:'Mixed commitment levels'},{s:3,t:'Mostly aligned'},{s:4,t:'Strongly aligned'},{s:5,t:'Exceptionally aligned'}]},
+    ],
+    startup:[
+      {text:"How relevant is your founding team's experience to the problem you're solving?",opts:[{s:1,t:'Not relevant'},{s:2,t:'Somewhat adjacent'},{s:3,t:'Moderately relevant'},{s:4,t:'Directly relevant'},{s:5,t:'We are the domain experts'}]},
+      {text:'Has anyone on your team successfully built and scaled a company before?',opts:[{s:1,t:'No prior experience'},{s:2,t:'Early-stage attempts only'},{s:3,t:'Built but not scaled'},{s:4,t:'Scaled, no exit'},{s:5,t:'Scaled and exited'}]},
+      {text:"How complete is your founding team's skill set?",opts:[{s:1,t:'Solo, no team yet'},{s:2,t:'Solo with early hires'},{s:3,t:'Team with skill gaps'},{s:4,t:'Mostly complementary'},{s:5,t:'Full-stack founding team'}]},
+      {text:'Do you have dedicated technical leadership in-house?',opts:[{s:1,t:'No, fully outsourced'},{s:2,t:'Contractor-based'},{s:3,t:'Technical hire, not founder'},{s:4,t:'Technical co-founder'},{s:5,t:'Elite technical co-founder'}]},
+      {text:'How is your equity structured across the founding team?',opts:[{s:1,t:'No vesting, disputes possible'},{s:2,t:'Informal agreements'},{s:3,t:'Vesting exists, not optimised'},{s:4,t:'Standard 4yr + 1yr cliff'},{s:5,t:'Fully optimised, advisor shares'}]},
+      {text:'How committed is everyone on the team to this venture full-time?',opts:[{s:1,t:'Side project for most'},{s:2,t:'Mixed — some part-time'},{s:3,t:'Mostly full-time'},{s:4,t:'All full-time'},{s:5,t:'All-in, long runway mindset'}]},
+    ]
+  }},
+  {id:'market',label:'Market & Competition',weight:.25,color:'#BA7517',questions:{
+    investor:[
+      {text:'How large and credibly addressable is the target market (TAM)?',opts:[{s:1,t:'Under $50M TAM'},{s:2,t:'$50M–$200M TAM'},{s:3,t:'$200M–$1B TAM'},{s:4,t:'$1B–$10B TAM'},{s:5,t:'$10B+ with clear wedge'}]},
+      {text:'How competitive is the market and how defensible is the position?',opts:[{s:1,t:'Crowded, no differentiation'},{s:2,t:'Competitive, weak moat'},{s:3,t:'Moderate competition, some edge'},{s:4,t:'Differentiated position'},{s:5,t:'Clear moat, hard to replicate'}]},
+      {text:'Is there evidence of real, urgent demand for this solution?',opts:[{s:1,t:'No demand signals'},{s:2,t:'Theoretical demand only'},{s:3,t:'Some qualitative evidence'},{s:4,t:'Validated with paying users'},{s:5,t:'Strong traction + NPS'}]},
+      {text:'How well does the team understand the competitive landscape?',opts:[{s:1,t:'Unaware of competitors'},{s:2,t:'Basic awareness'},{s:3,t:'Moderate analysis'},{s:4,t:'Detailed competitive map'},{s:5,t:'Deep intelligence + positioning'}]},
+      {text:'Is the market growing or shrinking?',opts:[{s:1,t:'Declining market'},{s:2,t:'Flat or stagnant'},{s:3,t:'Slow growth (< 5% CAGR)'},{s:4,t:'Fast growth (5–20% CAGR)'},{s:5,t:'Hypergrowth (20%+ CAGR)'}]},
+    ],
+    startup:[
+      {text:'How big is your realistic addressable market, with evidence?',opts:[{s:1,t:'Very niche, under $50M'},{s:2,t:'Small-medium, $50–200M'},{s:3,t:'Meaningful, $200M–$1B'},{s:4,t:'Large, $1–10B'},{s:5,t:'Massive with clear entry point'}]},
+      {text:'How differentiated are you from existing alternatives?',opts:[{s:1,t:'We do what others already do'},{s:2,t:'Minor differences'},{s:3,t:'Some differentiation'},{s:4,t:'Clear differentiators'},{s:5,t:'Unique with strong moat'}]},
+      {text:"Do you have evidence that customers urgently need what you're building?",opts:[{s:1,t:'No validation yet'},{s:2,t:'Informal conversations only'},{s:3,t:'Interest but no commitment'},{s:4,t:'LOIs or pilots signed'},{s:5,t:'Paying customers + strong feedback'}]},
+      {text:'How thoroughly have you mapped your competitive landscape?',opts:[{s:1,t:"We haven't"},{s:2,t:'Basic Google research'},{s:3,t:'Known the main players'},{s:4,t:'Detailed analysis done'},{s:5,t:'Ongoing competitive intelligence'}]},
+      {text:'Is your market growing, and can you show it?',opts:[{s:1,t:'Market is shrinking'},{s:2,t:'Flat market'},{s:3,t:'Slow growth'},{s:4,t:'Fast growing with data'},{s:5,t:'Hypergrowth, multiple sources'}]},
+    ]
+  }},
+  {id:'financial',label:'Financial & Runway',weight:.25,color:'#185FA5',questions:{
+    investor:[
+      {text:'How much runway does the company currently have?',opts:[{s:1,t:'Under 3 months'},{s:2,t:'3–6 months'},{s:3,t:'6–12 months'},{s:4,t:'12–18 months'},{s:5,t:'18+ months'}]},
+      {text:'Is the burn rate controlled and justified by growth?',opts:[{s:1,t:'Burning fast, no growth'},{s:2,t:'High burn, slow growth'},{s:3,t:'Moderate burn, moderate growth'},{s:4,t:'Lean burn, good growth'},{s:5,t:'Efficient burn-to-growth ratio'}]},
+      {text:'Is there a clear and realistic path to profitability or next funding?',opts:[{s:1,t:'No plan exists'},{s:2,t:'Vague plans'},{s:3,t:'Plan exists but unrealistic'},{s:4,t:'Credible plan with milestones'},{s:5,t:'Clear plan + contingencies'}]},
+      {text:'What is the unit economics profile (LTV:CAC, margins)?',opts:[{s:1,t:'Negative unit economics'},{s:2,t:'Break-even, poor margins'},{s:3,t:'Positive but tight margins'},{s:4,t:'Healthy LTV:CAC >3x'},{s:5,t:'Excellent economics, scalable'}]},
+      {text:'Has the company raised from credible investors before?',opts:[{s:1,t:'Bootstrapped, no investors'},{s:2,t:'Friends & family only'},{s:3,t:'Angel-backed'},{s:4,t:'Seed from known fund'},{s:5,t:'Series A+ from top-tier'}]},
+    ],
+    startup:[
+      {text:'How much runway do you currently have?',opts:[{s:1,t:'Under 3 months — critical'},{s:2,t:'3–6 months'},{s:3,t:'6–12 months'},{s:4,t:'12–18 months'},{s:5,t:'18+ months — comfortable'}]},
+      {text:'Is your burn rate proportional to your growth and milestones?',opts:[{s:1,t:'Burning fast, no results'},{s:2,t:'High burn, limited results'},{s:3,t:'Balanced burn and progress'},{s:4,t:'Efficient, milestone-driven'},{s:5,t:'Very lean, strong returns'}]},
+      {text:'Do you have a clear financial plan to profitability or next round?',opts:[{s:1,t:'No financial plan'},{s:2,t:'Rough estimate only'},{s:3,t:'Plan exists, not detailed'},{s:4,t:'Detailed plan with milestones'},{s:5,t:'Detailed + scenario-tested'}]},
+      {text:'What do your unit economics look like today?',opts:[{s:1,t:'We lose money per customer'},{s:2,t:'Break-even per customer'},{s:3,t:'Positive but improving'},{s:4,t:'Healthy LTV:CAC'},{s:5,t:'Strong and scaling well'}]},
+      {text:'Have you successfully raised institutional capital before?',opts:[{s:1,t:'No external capital'},{s:2,t:'Friends & family only'},{s:3,t:'Angel-backed'},{s:4,t:'Seed from known fund'},{s:5,t:'Multiple rounds, credible investors'}]},
+    ]
+  }},
+  {id:'product',label:'Product & Tech',weight:.20,color:'#0F6E56',questions:{
+    investor:[
+      {text:'What stage is the product at?',opts:[{s:1,t:'Idea only, no prototype'},{s:2,t:'Prototype, not tested'},{s:3,t:'MVP, limited users'},{s:4,t:'Live product, growing users'},{s:5,t:'Mature product, strong retention'}]},
+      {text:'How technically defensible is the core product?',opts:[{s:1,t:'Easily replicable'},{s:2,t:'Minor technical edge'},{s:3,t:'Some technical complexity'},{s:4,t:'Hard to replicate quickly'},{s:5,t:'Proprietary tech or deep IP'}]},
+      {text:'What does early user data or engagement look like?',opts:[{s:1,t:'No users yet'},{s:2,t:'Few users, low engagement'},{s:3,t:'Users with mixed engagement'},{s:4,t:'Growing active users'},{s:5,t:'Strong retention + referral'}]},
+      {text:'Is the tech stack scalable and production-ready?',opts:[{s:1,t:'Prototype-quality only'},{s:2,t:'Early, significant tech debt'},{s:3,t:'Functional, limited scale'},{s:4,t:'Solid stack, some improvements'},{s:5,t:'Production-grade, cloud-native'}]},
+      {text:'Does the product roadmap reflect a deep understanding of customer needs?',opts:[{s:1,t:'No roadmap exists'},{s:2,t:'Feature list, no strategy'},{s:3,t:'Roadmap exists, customer-light'},{s:4,t:'Customer-informed roadmap'},{s:5,t:'Jobs-to-be-done driven roadmap'}]},
+    ],
+    startup:[
+      {text:'Where is your product right now?',opts:[{s:1,t:'Still in concept phase'},{s:2,t:'Prototype only'},{s:3,t:'MVP being tested'},{s:4,t:'Live product with real users'},{s:5,t:'Mature product, strong retention'}]},
+      {text:'How defensible is your core technology from a competitive standpoint?',opts:[{s:1,t:'Anyone could build this'},{s:2,t:'Slight technical lead'},{s:3,t:'Some complexity advantage'},{s:4,t:'Hard to replicate easily'},{s:5,t:'Deep IP or proprietary tech'}]},
+      {text:'What does your user data tell you about product-market fit?',opts:[{s:1,t:'No user data yet'},{s:2,t:'Low engagement signals'},{s:3,t:'Mixed signals'},{s:4,t:'Clear engagement, growing'},{s:5,t:'Strong PMF signals + NPS 50+'}]},
+      {text:'How production-ready and scalable is your tech infrastructure?',opts:[{s:1,t:'Prototype-level only'},{s:2,t:'Functional but fragile'},{s:3,t:'Works, needs improvement'},{s:4,t:'Solid, scalable'},{s:5,t:'Cloud-native, battle-tested'}]},
+      {text:'Is your product roadmap driven by real customer insight?',opts:[{s:1,t:'No roadmap'},{s:2,t:'Feature-driven, no research'},{s:3,t:'Some customer input'},{s:4,t:'Research-informed roadmap'},{s:5,t:'Deeply customer-led'}]},
+    ]
+  }}
+];
+
+// ── State ────────────────────────────────────────────────────────────────────
+let mode=null,ANS={},curP=0,sName='',sDate='';
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function pad2(n){return String(n).padStart(2,'0')}
+function fmtDate(){const d=new Date();return`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`}
+function fmtLong(){const d=new Date();const m=['January','February','March','April','May','June','July','August','September','October','November','December'];return`${m[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`}
+function scCol(s){if(s===null)return'#555';if(s>=70)return'#4CAF82';if(s>=50)return'#C5973A';if(s>=30)return'#E8923A';return'#C53A3A'}
+function tier(s){
+  if(s>=70)return{label:'Low Risk',bg:'rgba(76,175,130,0.15)',c:'#4CAF82'};
+  if(s>=50)return{label:'Moderate Risk',bg:'rgba(197,151,58,0.15)',c:'#C5973A'};
+  if(s>=30)return{label:'High Risk',bg:'rgba(232,146,58,0.15)',c:'#E8923A'};
+  return{label:'Critical Risk',bg:'rgba(197,58,58,0.15)',c:'#C53A3A'};
+}
+function pScore(p){
+  const qs=p.questions[mode],sc=qs.map((_,qi)=>ANS[`${p.id}_${qi}`]).filter(v=>v!==undefined);
+  return sc.length?Math.round(sc.reduce((a,b)=>a+b,0)/sc.length/5*100):null;
+}
+function composite(){
+  let ws=0,wt=0;PILLARS.forEach(p=>{const s=pScore(p);if(s!==null){ws+=s*p.weight;wt+=p.weight}});
+  return wt?Math.round(ws/wt):null;
+}
+
+// ── Tab navigation ────────────────────────────────────────────────────────────
+function showTab(tab){
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>{t.classList.toggle('active',['home','calculator','scorecard','compare','benchmark','termsheet','waitlist','admin','history'][i]===tab)});
+  document.getElementById('tab-calculator').classList.toggle('active',tab==='calculator');
+  document.getElementById('tab-scorecard').classList.toggle('active',tab==='scorecard');
+  document.getElementById('tab-compare').classList.toggle('active',tab==='compare');
+  document.getElementById('tab-history').classList.toggle('active',tab==='history');
+  if(tab==='history')renderHistory();
+  document.getElementById('tab-benchmark').classList.toggle('active',tab==='benchmark');
+  document.getElementById('tab-home').classList.toggle('active',tab==='home');
+  document.getElementById('tab-termsheet').classList.toggle('active',tab==='termsheet');
+  document.getElementById('tab-waitlist').classList.toggle('active',tab==='waitlist');
+  document.getElementById('tab-admin').classList.toggle('active',tab==='admin');
+  if(tab==='waitlist')renderWaitlist();
+  if(tab==='admin')renderAdmin();
+  if(tab==='compare')renderCompare();
+  if(tab==='termsheet')renderTermSheet();
+  if(tab==='benchmark')renderBenchmark();
+}
+
+// ── Calculator screens ────────────────────────────────────────────────────────
+function showScreen(id){
+  ['scr-mode','scr-assessment','scr-results'].forEach(s=>{
+    document.getElementById(s).classList.toggle('active',s===id);
+  });
+}
+function selectMode(m){
+  mode=m;
+  document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('card-'+m).classList.add('selected');
+  checkStart();
+}
+function checkStart(){document.getElementById('btn-start').disabled=!(mode&&document.getElementById('sni').value.trim())}
+function startAssessment(){
+  setTimeout(activateProgress, 100);
+  sName=document.getElementById('sni').value.trim();
+  sDate=fmtLong();
+  showScreen('scr-assessment');
+  buildTabs();renderPillar(0);renderSidebar();
+}
+function buildTabs(){
+  document.getElementById('pillar-tabs').innerHTML=PILLARS.map((p,i)=>
+    `<div class="pillar-tab${i===0?' active':''}" id="tab-${i}" onclick="jumpPillar(${i})">${p.label}</div>`).join('');
+}
+function jumpPillar(i){curP=i;renderPillar(i);PILLARS.forEach((_,j)=>{document.getElementById('tab-'+j).className='pillar-tab'+(j===i?' active':'')})}
+
+function renderPillar(idx){
+  const p=PILLARS[idx],qs=p.questions[mode];
+  let h=`<div class="q-pillar-label"><span class="q-dot" style="background:${p.color}"></span>${p.label} — ${Math.round(p.weight*100)}% weight</div>`;
+  qs.forEach((q,qi)=>{
+    const sel=ANS[`${p.id}_${qi}`];
+    h+=`<div class="q-block"><div class="q-text">${q.text}</div><div class="q-opts">`;
+    q.opts.forEach(o=>{h+=`<div class="q-opt${sel===o.s?' sel':''}" onclick="ans('${p.id}',${qi},${o.s})"><span class="q-opt-score">${o.s}</span><span>${o.t}</span></div>`});
+    h+=`</div></div>`;
+  });
+  const done=qs.every((_,qi)=>ANS[`${p.id}_${qi}`]!==undefined),isLast=idx===PILLARS.length-1;
+  h+=`<div class="q-nav">`;
+  if(idx>0)h+=`<button class="btn-back" onclick="jumpPillar(${idx-1})">← Back</button>`;
+  if(!isLast)h+=`<button class="btn-next" onclick="jumpPillar(${idx+1})" ${done?'':'disabled'}>Next Pillar →</button>`;
+  else{const all=PILLARS.every(p2=>p2.questions[mode].every((_,qi)=>ANS[`${p2.id}_${qi}`]!==undefined));h+=`<button class="btn-next" onclick="showResults()" ${all?'':'disabled'}>Calculate Risk →</button>`}
+  h+=`</div>`;
+  document.getElementById('q-main').innerHTML=h;
+  const total=PILLARS.reduce((a,p2)=>a+p2.questions[mode].length,0),done2=Object.keys(ANS).length;
+  document.getElementById('prog-fill').style.width=Math.round(done2/total*100)+'%';
+  document.getElementById('prog-count').textContent=done2+' / '+total+' answered';
+  document.getElementById('prog-label').textContent=PILLARS[curP].label;
+}
+function ans(pid,qi,sc){ANS[`${pid}_${qi}`]=sc;renderPillar(curP);renderSidebar()}
+
+function renderSidebar(){
+  bumpLiveNum();
+  const c=composite(),el=document.getElementById('live-num'),tl=document.getElementById('live-tier');
+  el.textContent=c!==null?c:'—';el.style.color=c!==null?scCol(c):'#555';
+  updateNavTicker(c);
+  if(c!==null){const t=tier(c);tl.textContent=t.label;tl.style.color=t.c}
+  document.getElementById('pillar-minis').innerHTML=PILLARS.map(p=>{
+    const s=pScore(p),col=scCol(s);
+    return`<div class="pmini"><div class="pmini-header"><span class="pmini-name">${p.label.split(' & ')[0]}</span><span class="pmini-val">${s!==null?s:'—'}</span></div><div class="pmini-track"><div class="pmini-fill" style="width:${s||0}%;background:${col}"></div></div></div>`;
+  }).join('');
+}
+
+function showResults(){
+  showScreen('scr-results');
+  const c=composite(),t=tier(c),goV=c>=60,condV=c>=40&&c<60;
+  // Animate score reveal
+  const bigEl=document.getElementById('r-big');
+  if(bigEl){bigEl.textContent='0';setTimeout(function(){animateScore(bigEl,c,t.c,1200);},100);}
+  // Tier badge animate
+  setTimeout(function(){const tb=document.getElementById('r-tier-badge');if(tb)tb.classList.add('animating');},400);
+  // Quote animate
+  setTimeout(function(){const rq=document.getElementById('r-quote');if(rq)rq.classList.add('animating');},500);
+  saveAssessment(c,t,goV,condV);
+  const vc=goV?'#4CAF82':condV?'#C5973A':'#C53A3A';
+
+  document.getElementById('r-tag').textContent=(mode==='investor'?'Investor':'Startup')+' assessment — '+sName;
+  document.getElementById('r-big').textContent=c;document.getElementById('r-big').style.color=t.c;
+  const tb=document.getElementById('r-tier-badge');tb.textContent=t.label;tb.style.background=t.bg;tb.style.color=t.c;
+  const vm={'Low Risk':{v:'"Strong fundamentals across key risk dimensions."',s:'Risk is present but well-managed. Focus on execution and scaling.'},
+            'Moderate Risk':{v:'"Promising indicators, but material risks require attention."',s:'Selective risk mitigation can significantly improve the investment profile.'},
+            'High Risk':{v:'"Significant structural risks identified."',s:'Multiple pillars show weakness. Active work required before investment.'},
+            'Critical Risk':{v:'"Critical risk level. Not investable in current state."',s:'Foundational issues across dimensions. A strategic reset may be required.'}};
+  document.getElementById('r-quote').textContent=vm[t.label].v;
+  document.getElementById('r-sub').textContent=vm[t.label].s;
+
+  // PDF preview
+  document.getElementById('pdf-preview').innerHTML=
+    `<span class="hi">THINK TANK X</span>  |  Startup Risk Assessment Report\n`+
+    `<span class="hi2">${sName}</span>  ·  ${mode==='investor'?'Investor':'Startup'}  ·  ${sDate}\n\n`+
+    `Score: <span class="hi2">${c}/100</span>  ·  ${t.label}  ·  <span class="hi2">${goV?'Go':condV?'Conditional Go':'No-Go'}</span>\n\n`+
+    PILLARS.map(p=>`${p.label}: <span class="hi2">${pScore(p)}/100</span>`).join('  ·  ');
+
+  // Pillar cards
+  // Draw radar chart
+  const radarPillars=PILLARS.map(p=>({id:p.id,label:p.label,score:pScore(p)||0}));
+  setTimeout(function(){drawRadar(radarPillars);},300);
+  document.getElementById('r-cards').innerHTML=PILLARS.map(p=>{
+    const s=pScore(p),col=scCol(s),flags=[];
+    p.questions[mode].forEach((q,qi)=>{const sc=ANS[`${p.id}_${qi}`];if(sc<=2)flags.push({t:q.opts.find(o=>o.s===sc)?.t||'',type:'red'});if(sc>=5)flags.push({t:q.opts.find(o=>o.s===sc)?.t||'',type:'green'})});
+    return`<div class="r-card"><div class="r-card-header"><span class="r-card-name">${p.label}</span><span class="r-card-wt">${Math.round(p.weight*100)}% weight</span></div><div class="r-card-score" style="color:${col}">${s}</div><div class="r-card-bar"><div class="r-card-fill" style="width:${s}%;background:${col};height:3px"></div></div><div class="r-card-flags">${flags.slice(0,2).map(f=>`<div class="r-flag ${f.type}">${f.t}</div>`).join('')}</div></div>`;
+  }).join('');
+
+  // Verdict
+  const vbg=goV?'rgba(76,175,130,0.15)':condV?'rgba(197,151,58,0.15)':'rgba(197,58,58,0.15)';
+  document.getElementById('r-verdict-block').innerHTML=`<div class="r-verdict-header"><div class="r-verdict-icon" style="background:${vbg};color:${vc}">${goV?'✓':condV?'~':'✕'}</div><div class="r-verdict-title">${goV?'Go':condV?'Conditional Go':'No-Go'}</div></div><div class="r-verdict-body">${goV?(mode==='investor'?'Risk profile supports investment. Proceed with due diligence focused on lowest-scoring pillars.':'Strong risk profile for fundraising. Reinforce weaker areas before approaching investors.'):condV?(mode==='investor'?'Investment possible with conditions. Address key risks in deal terms.':'You can fundraise, but address flagged risks first.'):mode==='investor'?'Risk profile does not support investment at this stage.':'Foundational risks will prevent successful fundraising.'}</div>`;
+
+  // Flags
+  const af=[];PILLARS.forEach(p=>p.questions[mode].forEach((q,qi)=>{const sc=ANS[`${p.id}_${qi}`];if(sc<=2)af.push({txt:q.text.replace(/\?$/,''),pillar:p.label,col:'#C53A3A',type:'Risk flag'});if(sc>=5)af.push({txt:q.text.replace(/\?$/,''),pillar:p.label,col:'#4CAF82',type:'Strength'})}));
+  const comb=[...af.filter(f=>f.type==='Risk flag').slice(0,4),...af.filter(f=>f.type==='Strength').slice(0,3)];
+  document.getElementById('r-flags').innerHTML=comb.map(f=>`<div class="flag-row"><div class="flag-dot" style="background:${f.col}"></div><div><span style="font-size:9px;color:${f.col};font-weight:bold;letter-spacing:.08em;text-transform:uppercase">${f.type} · ${f.pillar}</span><br>${f.txt}</div></div>`).join('');
+
+  // Recommendations button — direct addEventListener for reliable sendPrompt
+  const pillarLines=PILLARS.map(p=>{
+    const s=pScore(p),qs=p.questions[mode];
+    const flags=qs.map((q,qi)=>{const sc=ANS[`${p.id}_${qi}`];return sc<=2?`  - ${q.text.replace(/\?$/,'')}: scored ${sc}/5 (${q.opts.find(o=>o.s===sc)?.t})`:null}).filter(Boolean);
+    return`${p.label} (${Math.round(p.weight*100)}% weight): ${s}/100${flags.length?'\n'+flags.join('\n'):''}`;
+  }).join('\n\n');
+  const prompt=`I just completed the TTX Startup Risk Framework for "${sName}" as a ${mode}.\n\nComposite score: ${c}/100\nRisk tier: ${t.label}\nVerdict: ${goV?'Go':condV?'Conditional Go':'No-Go'}\n\nPillar breakdown:\n${pillarLines}\n\nBased on these TTX scores, give me specific prioritised recommendations to reduce overall risk — focus on the weakest pillars and the questions that scored 1 or 2.`;
+  const recBtn=document.getElementById('btn-rec');
+  const fresh=recBtn.cloneNode(true);
+  recBtn.parentNode.replaceChild(fresh,recBtn);
+  fresh.addEventListener('click',()=>sendPrompt(prompt));
+
+  // Pre-fill score card
+  document.getElementById('sc-name').value=sName;
+  document.getElementById('sc-score').value=c;
+  document.getElementById('sc-verdict').value=goV?'Go':condV?'Conditional Go':'No-Go';
+  document.getElementById('sc-team').value=pScore(PILLARS[0])||0;
+  document.getElementById('sc-market').value=pScore(PILLARS[1])||0;
+  document.getElementById('sc-fin').value=pScore(PILLARS[2])||0;
+  document.getElementById('sc-prod').value=pScore(PILLARS[3])||0;
+  updateSC();
+}
+
+function goToScoreCard(){showTab('scorecard');updateSC()}
+
+function generatePDF(){
+  const btn=document.getElementById('btn-pdf'),st=document.getElementById('pdf-status');
+  btn.disabled=true;st.textContent='Building PDF...';
+  setTimeout(()=>{
+    try{
+      const c=composite(),t=tier(c),goV=c>=60,condV=c>=40&&c<60;
+      const vl=goV?'GO':condV?'CONDITIONAL GO':'NO-GO';
+      const vc=goV?[46,175,130]:condV?[197,151,58]:[197,58,58];
+      const G=[197,151,58],DR=[26,26,26],MR=[68,68,68],MT=[136,136,136];
+      const W=612,H=792,ML=43;
+      // Use browser's built-in PDF via canvas approach
+      // Build a detailed HTML string and use window.print()
+      const html=buildPDFHTML(c,t,goV,condV,vl);
+      const win=window.open('','_blank','width=800,height=900');
+      win.document.write(html);
+      win.document.close();
+      win.focus();
+      setTimeout(()=>{win.print();},500);
+      st.textContent='Print dialog opened — choose "Save as PDF" in your printer options.';
+      btn.disabled=false;
+    }catch(e){console.error(e);st.textContent='Error. Try again.';btn.disabled=false}
+  },100);
+}
+
+function buildPDFHTML(c,t,goV,condV,vl){
+  const vc=goV?'#4CAF82':condV?'#C5973A':'#C53A3A';
+  const tbgMap={'Low Risk':'#EAF3DE','Moderate Risk':'#FAEEDA','High Risk':'#FAECE7','Critical Risk':'#FCEBEB'};
+  const tbg=tbgMap[t.label]||'#F5F1E8';
+  let pillarRows=PILLARS.map((p,i)=>{
+    const ps=pScore(p)||0,pc=scCol(ps);
+    const pct=ps+'%';
+    return`<tr style="background:${i%2===0?'#fff':'#F9F7F2'}">
+      <td style="padding:7px 10px;font-size:11px;color:#1a1a1a;border:0.3px solid #ddd">${p.label}</td>
+      <td style="padding:7px 10px;font-size:11px;font-weight:bold;color:#C5973A;border:0.3px solid #ddd">${Math.round(p.weight*100)}%</td>
+      <td style="padding:7px 10px;font-size:12px;font-weight:bold;color:${pc};border:0.3px solid #ddd">${ps}</td>
+      <td style="padding:7px 10px;border:0.3px solid #ddd"><div style="height:6px;background:#ddd;width:130px"><div style="height:6px;background:${pc};width:${pct}"></div></div></td>
+      <td style="padding:7px 10px;font-size:10px;color:${pc};border:0.3px solid #ddd">${t.label}</td>
+    </tr>`;
+  }).join('');
+
+  let detailSections=PILLARS.map(p=>{
+    const ps=pScore(p)||0,pc=scCol(ps);
+    const ptbg=tbgMap[tier(ps).label]||'#F5F1E8';
+    const qrows=p.questions[mode].map((q,qi)=>{
+      const sc=ANS[`${p.id}_${qi}`]||0;
+      const ql=q.opts.find(o=>o.s===sc)?.t||'—';
+      const sig=sc<=2?'<span style="color:#C53A3A;font-weight:bold">Risk flag</span>':sc>=5?'<span style="color:#2E7D5A;font-weight:bold">Strength</span>':'<span style="color:#888">Neutral</span>';
+      const scCol2=sc<=2?'#C53A3A':sc>=4?'#2E7D5A':'#C5973A';
+      return`<tr style="background:${qi%2===0?'#fff':'#F9F7F2'}">
+        <td style="padding:6px 8px;font-size:9px;color:#1a1a1a;border:0.3px solid #ddd;max-width:200px">${q.text}</td>
+        <td style="padding:6px 8px;font-size:10px;font-weight:bold;color:${scCol2};text-align:center;border:0.3px solid #ddd">${sc}/5</td>
+        <td style="padding:6px 8px;font-size:9px;color:#444;border:0.3px solid #ddd">${ql}</td>
+        <td style="padding:6px 8px;font-size:9px;border:0.3px solid #ddd">${sig}</td>
+      </tr>`;
+    }).join('');
+    return`<div style="margin-bottom:18px;page-break-inside:avoid">
+      <div style="background:${ptbg};border:0.6px solid ${pc};padding:10px 12px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;font-weight:bold;color:#1a1a1a">${p.label}</span>
+        <span style="font-size:10px;font-weight:bold;color:${pc}">Score: ${ps}/100  ·  Weight: ${Math.round(p.weight*100)}%</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <tr style="background:#2C2C2A">
+          <th style="padding:6px 8px;font-size:8px;color:#fff;text-align:left;border:0.3px solid #444;width:42%">Question</th>
+          <th style="padding:6px 8px;font-size:8px;color:#C5973A;text-align:center;border:0.3px solid #444;width:8%">Score</th>
+          <th style="padding:6px 8px;font-size:8px;color:#fff;text-align:left;border:0.3px solid #444;width:32%">Response</th>
+          <th style="padding:6px 8px;font-size:8px;color:#fff;text-align:left;border:0.3px solid #444;width:18%">Signal</th>
+        </tr>
+        ${qrows}
+      </table>
+    </div>`;
+  }).join('');
+
+  // Risk flags
+  const af=[];PILLARS.forEach(p=>p.questions[mode].forEach((q,qi)=>{const sc=ANS[`${p.id}_${qi}`];if(sc<=2)af.push({type:'RISK FLAG',pillar:p.label,q:q.text.replace(/\?$/,''),lbl:q.opts.find(o=>o.s===sc)?.t||'',col:'#C53A3A'});if(sc>=5)af.push({type:'STRENGTH',pillar:p.label,q:q.text.replace(/\?$/,''),lbl:q.opts.find(o=>o.s===sc)?.t||'',col:'#2E7D5A'})}));
+  const flagRows=[...af.filter(f=>f.type==='RISK FLAG').slice(0,5),...af.filter(f=>f.type==='STRENGTH').slice(0,3)].map((f,i)=>
+    `<tr style="background:${i%2===0?'#fff':'#F9F7F2'}">
+      <td style="padding:6px 8px;font-size:8px;font-weight:bold;color:${f.col};border:0.3px solid #ddd;border-left:3px solid ${f.col}">${f.type}</td>
+      <td style="padding:6px 8px;font-size:9px;color:#1a1a1a;border:0.3px solid #ddd">${f.pillar}: ${f.q}</td>
+      <td style="padding:6px 8px;font-size:9px;color:#888;border:0.3px solid #ddd;text-align:right">${f.lbl}</td>
+    </tr>`).join('');
+
+  return`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>TTX Risk Report — ${sName}</title>
+  <style>
+    body{font-family:Helvetica,Arial,sans-serif;margin:0;padding:0;color:#1a1a1a;font-size:11px}
+    @media print{
+      body{margin:0}
+      .no-print{display:none}
+      @page{margin:0.6in;size:letter}
+    }
+    .header{background:#0a0a0a;padding:10px 20px;display:flex;justify-content:space-between;align-items:center}
+    .footer{border-top:0.5px solid #ddd;padding:8px 20px;display:flex;justify-content:space-between;font-size:8px;color:#888;margin-top:20px}
+    .content{padding:20px}
+    table{border-collapse:collapse}
+  </style>
+  </head><body>
+  <div class="header">
+    <span style="color:#C5973A;font-weight:bold;font-size:13px;letter-spacing:.08em">THINK TANK X</span>
+    <span style="color:#888;font-size:9px">Startup Risk Assessment Report  |  ${sDate}</span>
+  </div>
+  <div style="height:2px;background:#C5973A"></div>
+  <div class="content">
+    <div style="margin-bottom:6px">
+      <span style="font-size:8px;font-weight:bold;color:#C5973A;letter-spacing:.15em;text-transform:uppercase">STARTUP RISK ASSESSMENT</span>
+    </div>
+    <div style="font-size:22px;font-weight:bold;color:#1a1a1a;margin-bottom:4px">${sName}</div>
+    <div style="font-size:9px;color:#888;margin-bottom:14px">Mode: ${mode==='investor'?'Investor':'Startup'}   |   ${sDate}</div>
+    <hr style="border:none;border-top:1.5px solid #C5973A;margin-bottom:14px">
+
+    <!-- Score hero -->
+    <div style="background:${tbg};border:0.8px solid ${vc};padding:14px 18px;display:flex;align-items:center;gap:20px;margin-bottom:16px">
+      <div style="min-width:80px">
+        <div style="font-size:48px;font-weight:bold;color:${vc};line-height:1">${c}</div>
+        <div style="font-size:8px;font-weight:bold;color:${vc};letter-spacing:.1em;text-transform:uppercase">${t.label}</div>
+        <div style="font-size:8px;color:#888;margin-top:2px">Composite score</div>
+      </div>
+      <div style="border-left:0.5px solid #ccc;padding-left:20px;flex:1">
+        <div style="font-size:16px;font-weight:bold;color:${vc};margin-bottom:6px">${vl}</div>
+        <div style="font-size:10px;color:#444">${goV?'The risk profile supports investment consideration. Proceed with due diligence.':condV?'Investment possible with conditions. Key risks must be addressed in deal terms.':'Risk profile does not support investment at this stage.'}</div>
+      </div>
+    </div>
+
+    <!-- Pillar summary -->
+    <div style="font-size:8px;font-weight:bold;color:#C5973A;letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px">RISK BREAKDOWN BY PILLAR</div>
+    <table style="width:100%;margin-bottom:16px">
+      <tr style="background:#0a0a0a">
+        <th style="padding:7px 10px;font-size:8px;color:#fff;text-align:left;border:0.3px solid #333">Pillar</th>
+        <th style="padding:7px 10px;font-size:8px;color:#C5973A;text-align:left;border:0.3px solid #333">Weight</th>
+        <th style="padding:7px 10px;font-size:8px;color:#fff;text-align:left;border:0.3px solid #333">Score</th>
+        <th style="padding:7px 10px;font-size:8px;color:#fff;text-align:left;border:0.3px solid #333">Risk bar</th>
+        <th style="padding:7px 10px;font-size:8px;color:#fff;text-align:left;border:0.3px solid #333">Status</th>
+      </tr>
+      ${pillarRows}
+    </table>
+
+    <!-- Detail -->
+    <div style="font-size:8px;font-weight:bold;color:#C5973A;letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px">PILLAR-BY-PILLAR DETAIL</div>
+    ${detailSections}
+
+    <!-- Flags -->
+    <hr style="border:none;border-top:1px solid #C5973A;margin:14px 0 10px">
+    <div style="font-size:8px;font-weight:bold;color:#C5973A;letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px">KEY RISK SIGNALS</div>
+    <table style="width:100%;margin-bottom:16px">
+      ${flagRows}
+    </table>
+
+    <hr style="border:none;border-top:1px solid #C5973A;margin:14px 0 10px">
+    <div style="font-size:7.5px;color:#888;text-align:center">
+      This report was generated by the Think Tank X Startup Risk Framework v1.0. For analytical and educational purposes only. Not financial advice.
+    </div>
+  </div>
+  <div class="footer">
+    <span>Confidential — Think Tank X  |  Risk before reward.</span>
+    <span>${sDate}</span>
+  </div>
+  <div class="no-print" style="text-align:center;padding:16px;background:#f0f0f0;margin-top:16px">
+    <button onclick="window.print()" style="padding:10px 28px;background:#C5973A;color:#000;border:none;cursor:pointer;font-weight:bold;font-size:13px">Print / Save as PDF</button>
+    <p style="font-size:11px;color:#666;margin-top:8px">In the print dialog, select <b>Save as PDF</b> as your printer destination.</p>
+  </div>
+  </body></html>`;
+}
+
+function restartApp(){
+  mode=null;ANS={};curP=0;sName='';
+  document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('btn-start').disabled=true;
+  document.getElementById('sni').value='';
+  showScreen('scr-mode');
+}
+
+// ── Score Card ────────────────────────────────────────────────────────────────
+const SC_VDESCS={'Go':'Strong fundamentals. Ready for investment diligence.','Conditional Go':'Promising indicators. Material risks require attention.','No-Go':'Significant risks. Not investable in current state.'};
+const SC_PILLARS=[{id:'sc-team',label:'Team & Founder',color:'#D85A30'},{id:'sc-market',label:'Market & Competition',color:'#BA7517'},{id:'sc-fin',label:'Financial & Runway',color:'#185FA5'},{id:'sc-prod',label:'Product & Tech',color:'#0F6E56'}];
+
+function updateSC(){
+  const name=document.getElementById('sc-name').value.trim()||'Venture Name';
+  const mode2=document.getElementById('sc-mode').value;
+  const score=Math.min(100,Math.max(0,parseInt(document.getElementById('sc-score').value)||0));
+  const verdict=document.getElementById('sc-verdict').value;
+  const sc=tier(score);
+  const d=new Date();
+  const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  document.getElementById('sc-d-name').textContent=name;
+  document.getElementById('sc-d-mode').textContent=mode2;
+  document.getElementById('sc-d-score').textContent=score;
+  document.getElementById('sc-d-score').style.color=sc.c;
+  document.getElementById('sc-d-tier').textContent=sc.label;
+  document.getElementById('sc-d-tier').style.color=sc.c;
+  document.getElementById('sc-d-tier').style.background=sc.bg;
+  document.getElementById('sc-d-verdict').textContent=verdict;
+  document.getElementById('sc-d-verdict').style.color=sc.c;
+  document.getElementById('sc-d-desc').textContent=SC_VDESCS[verdict]||'';
+  document.getElementById('sc-d-date').textContent=`${mo[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+
+  let html='';
+  SC_PILLARS.forEach(p=>{
+    const val=Math.min(100,Math.max(0,parseInt(document.getElementById(p.id).value)||0));
+    const pc=tier(val);
+    html+=`<div class="sc-pillar"><span class="sc-pname">${p.label}</span><div class="sc-ptrack"><div class="sc-pfill" style="width:${val}%;background:${pc.c}"></div></div><span class="sc-pval" style="color:${pc.c}">${val}</span></div>`;
+  });
+  document.getElementById('sc-d-pillars').innerHTML=html;
+}
+
+function downloadSC(){
+  const st=document.getElementById('sc-status');
+  st.textContent='Capturing card...';
+  const card=document.getElementById('score-card');
+  // Use Canvas to capture
+  if(typeof html2canvas!=='undefined'){
+    html2canvas(card,{scale:2,backgroundColor:'#0a0a0a',useCORS:true,width:600,height:315}).then(canvas=>{
+      const name=(document.getElementById('sc-name').value.trim()||'ttx').replace(/[^a-z0-9]/gi,'_').toLowerCase();
+      const a=document.createElement('a');a.download='TTX_ScoreCard_'+name+'.png';a.href=canvas.toDataURL('image/png');a.click();
+      st.textContent='Downloaded — 1200×630 PNG ready.';
+    }).catch(e=>{st.textContent='Error. Try right-click > Save image on the card above.'});
+    return;
+  }
+  // Fallback: open card in new window for manual save
+  const cardHTML=`<!DOCTYPE html><html><head><style>
+    body{margin:0;background:#0a0a0a;display:flex;justify-content:center;align-items:center;min-height:100vh}
+    ${document.querySelector('style').textContent}
+  </style></head><body>${card.outerHTML}
+  <p style="color:#888;font-family:monospace;font-size:11px;text-align:center;padding:12px">Right-click the card above and select "Save image as..."</p>
+  </body></html>`;
+  const w=window.open('','_blank');w.document.write(cardHTML);w.document.close();
+  st.textContent='Opened in new tab — right-click the card to save as image.';
+}
+
+function copySCCaption(){
+  const name=document.getElementById('sc-name').value.trim()||'our venture';
+  const score=document.getElementById('sc-score').value||'—';
+  const verdict=document.getElementById('sc-verdict').value;
+  const text=`TTX Risk Assessment — ${name}\nComposite score: ${score}/100  |  Verdict: ${verdict}\nAssessed using the Think Tank X Startup Risk Framework\n#TTX #StartupRisk #RiskManagement`;
+  navigator.clipboard.writeText(text).then(()=>{document.getElementById('sc-status').textContent='Caption copied — paste alongside your downloaded card.'}).catch(()=>{document.getElementById('sc-status').textContent='Copy failed — select the text above manually.'});
+}
+
+// ── Term Sheet Generator ──────────────────────────────────────────────────────
+let tsSelected = null;
+let tsParams = {}; // editable params: valuation, amount, investor
+
+function renderTermSheet(){
+  const h = loadHistory();
+  const el = document.getElementById('ts-body');
+  if(!h.length){
+    el.innerHTML = '<div class="ts-empty">Complete at least one assessment first.<br>The term sheet will be generated from your TTX risk scores.</div>';
+    return;
+  }
+  const entry = tsSelected ? h.find(e=>e.id===tsSelected) : h[0];
+  const opts = h.map(e=>`<option value="${e.id}" ${entry&&e.id===entry.id?'selected':''}>${e.name} — ${e.tier} (${e.score}) · ${e.date}</option>`).join('');
+
+  // Default params
+  const p = {
+    valuation: tsParams.valuation || suggestValuation(entry),
+    amount:    tsParams.amount    || suggestAmount(entry),
+    investor:  tsParams.investor  || 'Think Tank X Capital',
+    date:      tsParams.date      || new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),
+  };
+
+  el.innerHTML = `
+    <div class="ts-select-row">
+      <div>
+        <label class="name-label" style="margin-bottom:6px">Assessment</label>
+        <select class="ts-select" onchange="tsSelected=parseInt(this.value);tsParams={};renderTermSheet()">${opts}</select>
+      </div>
+      <div>
+        <label class="name-label" style="margin-bottom:6px">Investor / fund name</label>
+        <input class="ts-input" style="width:100%;padding:11px 14px;font-size:13px" value="${p.investor}" oninput="tsParams.investor=this.value;rebuildTS()">
+      </div>
+    </div>
+    <div class="ts-select-row" style="margin-bottom:32px">
+      <div>
+        <label class="name-label" style="margin-bottom:6px">Pre-money valuation (USD)</label>
+        <input class="ts-input" style="width:100%;padding:11px 14px;font-size:13px" value="${p.valuation}" oninput="tsParams.valuation=this.value;rebuildTS()">
+      </div>
+      <div>
+        <label class="name-label" style="margin-bottom:6px">Investment amount (USD)</label>
+        <input class="ts-input" style="width:100%;padding:11px 14px;font-size:13px" value="${p.amount}" oninput="tsParams.amount=this.value;rebuildTS()">
+      </div>
+    </div>
+    <div id="ts-doc-wrap"></div>
+  `;
+
+  buildTSDoc(entry, p);
+}
+
+function rebuildTS(){
+  const h = loadHistory();
+  const entry = tsSelected ? h.find(e=>e.id===tsSelected) : h[0];
+  if(!entry) return;
+  const p = {
+    valuation: tsParams.valuation || suggestValuation(entry),
+    amount:    tsParams.amount    || suggestAmount(entry),
+    investor:  tsParams.investor  || 'Think Tank X Capital',
+    date:      tsParams.date      || new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),
+  };
+  buildTSDoc(entry, p);
+}
+
+function suggestValuation(entry){
+  const s = entry.score;
+  if(s>=70) return '$8,000,000';
+  if(s>=60) return '$5,000,000';
+  if(s>=50) return '$3,500,000';
+  if(s>=40) return '$2,000,000';
+  return '$1,500,000';
+}
+function suggestAmount(entry){
+  const s = entry.score;
+  if(s>=70) return '$1,500,000';
+  if(s>=60) return '$1,000,000';
+  if(s>=50) return '$750,000';
+  if(s>=40) return '$500,000';
+  return '$250,000';
+}
+
+function buildTSDoc(entry, p){
+  const el = document.getElementById('ts-doc-wrap');
+  if(!el) return;
+  const score = entry.score;
+  const t = tier(score);
+  const goV = score>=60, condV = score>=40&&score<60;
+  const verdict = goV?'Go':condV?'Conditional Go':'No-Go';
+  const vc = goV?'#4CAF82':condV?'#C5973A':'#C53A3A';
+
+  // ── Deal structure based on risk ─────────────────────────────────────
+  const structure = getDealStructure(score);
+  const conditions = getConditions(entry);
+  const milestones = getMilestones(entry);
+  const protections = getProtections(entry);
+  const riskAdjustments = getRiskAdjustments(entry);
+
+  // Equity calc
+  const preMoney = parseFloat(p.valuation.replace(/[^0-9.]/g,'')) || 3500000;
+  const investAmt = parseFloat(p.amount.replace(/[^0-9.]/g,'')) || 750000;
+  const postMoney = preMoney + investAmt;
+  const equity = ((investAmt/postMoney)*100).toFixed(1);
+  const fmtM = n => n>=1000000 ? '$'+(n/1000000).toFixed(2)+'M' : '$'+n.toLocaleString();
+
+  el.innerHTML = `
+  <div class="ts-doc">
+    <div class="ts-doc-header">
+      <div>
+        <div class="ts-doc-brand">Think Tank <span>X</span></div>
+        <div class="ts-doc-title">Risk-Adjusted Term Sheet</div>
+      </div>
+      <div class="ts-doc-meta">
+        Venture: ${entry.name}<br>
+        TTX Score: ${score}/100 — ${t.label}<br>
+        Generated: ${p.date}<br>
+        <span style="color:${vc}">Verdict: ${verdict}</span>
+      </div>
+    </div>
+    <div class="ts-doc-body">
+
+      <div class="ts-section">
+        <div class="ts-section-title">Deal economics</div>
+        <div class="ts-row"><span class="ts-row-label">Investor</span><span class="ts-row-value">${p.investor}</span></div>
+        <div class="ts-row"><span class="ts-row-label">Investee</span><span class="ts-row-value">${entry.name}</span></div>
+        <div class="ts-row"><span class="ts-row-label">Investment amount</span><span class="ts-row-value highlight">${fmtM(investAmt)}</span></div>
+        <div class="ts-row"><span class="ts-row-label">Pre-money valuation</span><span class="ts-row-value">${fmtM(preMoney)}</span></div>
+        <div class="ts-row"><span class="ts-row-label">Post-money valuation</span><span class="ts-row-value">${fmtM(postMoney)}</span></div>
+        <div class="ts-row"><span class="ts-row-label">Equity acquired</span><span class="ts-row-value highlight">${equity}%</span></div>
+        <div class="ts-row"><span class="ts-row-label">Instrument</span><span class="ts-row-value">${structure.instrument}</span></div>
+        <div class="ts-row"><span class="ts-row-label">Disbursement</span><span class="ts-row-value ${score<50?'warn':''}">${structure.disbursement}</span></div>
+      </div>
+
+      <div class="ts-section">
+        <div class="ts-section-title">Risk-adjusted conditions — ${conditions.length} condition${conditions.length!==1?'s':''} based on TTX score ${score}/100</div>
+        ${conditions.map(c=>`<div class="ts-condition ${c.type}">
+          <div class="ts-condition-tag" style="color:${c.type==='hard'?'#C53A3A':c.type==='soft'?'#C5973A':'#4CAF82'}">${c.type==='hard'?'Hard condition':c.type==='soft'?'Soft condition':'Milestone'}</div>
+          ${c.text}
+        </div>`).join('')}
+      </div>
+
+      <div class="ts-section">
+        <div class="ts-section-title">Funding milestones — tranched disbursement</div>
+        ${milestones.map((m,i)=>`<div class="ts-row">
+          <span class="ts-row-label">Tranche ${i+1} — ${m.pct}%</span>
+          <span class="ts-row-value">${fmtM(Math.round(investAmt*m.pct/100))} on: ${m.trigger}</span>
+        </div>`).join('')}
+      </div>
+
+      <div class="ts-section">
+        <div class="ts-section-title">Investor protections</div>
+        ${protections.map(pr=>`<div class="ts-row">
+          <span class="ts-row-label">${pr.name}</span>
+          <span class="ts-row-value ${pr.cls||''}">${pr.value}</span>
+        </div>`).join('')}
+      </div>
+
+      <div class="ts-section">
+        <div class="ts-section-title">Risk register — pillar breakdown</div>
+        <table class="ts-risk-table">
+          <tr>
+            <th>Pillar</th><th>Score</th><th>Weight</th><th>Risk level</th><th>Deal implication</th>
+          </tr>
+          ${entry.pillars.map(pl=>{
+            const pc=scCol(pl.score),t2=tier(pl.score);
+            const impl=riskAdjustments[pl.id]||'Standard terms apply.';
+            return`<tr>
+              <td>${pl.label}</td>
+              <td><span class="ts-score-pill" style="background:${pc}22;color:${pc}">${pl.score}</span></td>
+              <td style="color:#555">${({team:'30%',market:'25%',financial:'25%',product:'20%'})[pl.id]}</td>
+              <td style="color:${pc}">${t2.label}</td>
+              <td style="color:#777">${impl}</td>
+            </tr>`;
+          }).join('')}
+        </table>
+      </div>
+
+      <div class="ts-disclaimer">
+        This term sheet was generated by the Think Tank X Risk Framework v1.0 and is intended as a starting-point document for deal structuring discussions only. It does not constitute a binding legal agreement, financial advice, or a commitment to invest. All terms are indicative and subject to full legal due diligence, regulatory compliance review, and final negotiation between parties. TTX scores reflect the respondent's self-assessment at the time of completion.
+      </div>
+
+    </div>
+  </div>
+  <div class="ts-actions">
+    <button class="btn-action" onclick="printTermSheet()">Print / Save as PDF</button>
+    <button class="btn-outline" onclick="showTab('calculator')">Run new assessment</button>
+  </div>`;
+}
+
+function getDealStructure(score){
+  if(score>=70) return {
+    instrument: 'Priced equity round (SAFE or Series Seed)',
+    disbursement: 'Full amount on close'
+  };
+  if(score>=60) return {
+    instrument: 'Priced equity or convertible note',
+    disbursement: 'Full amount on close, 90-day review clause'
+  };
+  if(score>=50) return {
+    instrument: 'Convertible note or SAFE with valuation cap',
+    disbursement: 'Tranched — 60% on close, 40% on milestone'
+  };
+  if(score>=40) return {
+    instrument: 'SAFE with discount and valuation cap',
+    disbursement: 'Tranched — 50% on close, 50% on two milestones'
+  };
+  return {
+    instrument: 'Convertible note with protective covenants',
+    disbursement: 'Tranched — 33% per milestone, three tranches'
+  };
+}
+
+function getConditions(entry){
+  const conds = [];
+  const score = entry.score;
+  const pillars = {};
+  entry.pillars.forEach(p=>{ pillars[p.id]=p.score; });
+
+  // Hard conditions — always included based on score
+  if(score < 60){
+    conds.push({type:'hard', text:'Completion of full legal due diligence by investor counsel, including cap table verification, IP assignment confirmation, and employment agreement review, prior to first disbursement.'});
+  }
+  if(score < 50){
+    conds.push({type:'hard', text:'Submission of a 12-month financial model with monthly burn projections, revenue assumptions, and three funding scenarios (conservative / base / optimistic) to be reviewed and approved by the investor before close.'});
+  }
+
+  // Team conditions
+  if(pillars.team < 50){
+    conds.push({type:'hard', text:'Formalisation of all founder equity agreements with standard 4-year vesting and 1-year cliff, documented in shareholder agreements signed by all parties, prior to funding.'});
+  }
+  if(pillars.team < 40){
+    conds.push({type:'soft', text:'Appointment of at least one independent board advisor with direct domain expertise within 60 days of close, with equity of no less than 0.25% and advisory agreement on file.'});
+  }
+
+  // Financial conditions
+  if(pillars.financial < 50){
+    conds.push({type:'hard', text:'Demonstration of a minimum 6-month post-investment runway at current burn rate before second tranche is released. Monthly financial reporting to investor required from month one.'});
+  }
+  if(pillars.financial < 40){
+    conds.push({type:'hard', text:'Submission of a credible bridge or revenue plan demonstrating the path to the next funding event or profitability within 18 months, approved by investor prior to first disbursement.'});
+  }
+
+  // Market conditions
+  if(pillars.market < 50){
+    conds.push({type:'soft', text:'Provision of updated market sizing analysis including bottom-up TAM calculation and at least three third-party data sources supporting addressable market claims within 30 days of close.'});
+  }
+
+  // Product conditions
+  if(pillars.product < 40){
+    conds.push({type:'soft', text:'Delivery of a customer-validated product roadmap with at least 5 documented customer interviews and defined success metrics for the next two product milestones within 45 days of close.'});
+  }
+
+  // Milestone condition — always included
+  conds.push({type:'milestone', text:'Quarterly business reviews with the investor covering: composite TTX re-assessment, burn vs plan variance, revenue vs forecast, and key hiring updates. Investor has right to re-price or restructure if composite TTX score deteriorates by 15+ points at any quarterly review.'});
+
+  return conds;
+}
+
+function getMilestones(entry){
+  const score = entry.score;
+  const financial = entry.pillars.find(p=>p.id==='financial')?.score||50;
+
+  if(score >= 70){
+    return [
+      { pct:100, trigger:'Completion of legal close and all conditions precedent' }
+    ];
+  }
+  if(score >= 60){
+    return [
+      { pct:100, trigger:'Completion of legal close and all conditions precedent' }
+    ];
+  }
+  if(score >= 50){
+    return [
+      { pct:60, trigger:'Completion of legal close and all hard conditions precedent' },
+      { pct:40, trigger:'Achievement of agreed 90-day milestone (product, revenue, or team)' }
+    ];
+  }
+  if(score >= 40){
+    return [
+      { pct:50, trigger:'Completion of legal close, hard conditions, and financial model approval' },
+      { pct:30, trigger:'60-day milestone: formalised cap table, 6-month runway demonstrated' },
+      { pct:20, trigger:'120-day milestone: revenue target or signed customer LOIs' }
+    ];
+  }
+  return [
+    { pct:33, trigger:'Close and legal conditions including formal equity agreements' },
+    { pct:33, trigger:'60-day milestone: financial model, runway >6 months demonstrated' },
+    { pct:34, trigger:'120-day milestone: product milestone and paying customer evidence' }
+  ];
+}
+
+function getProtections(entry){
+  const score = entry.score;
+  const prot = [
+    { name:'Information rights', value:'Monthly management accounts, quarterly board pack, annual audited accounts' },
+    { name:'Pro-rata rights',    value:'Right to participate in future rounds to maintain ownership percentage' },
+  ];
+  if(score < 70){
+    prot.push({ name:'Anti-dilution', value:'Broad-based weighted average anti-dilution protection', cls:'' });
+  }
+  if(score < 60){
+    prot.push({ name:'Board seat / observer', value:'Investor holds one board observer seat with right to attend all board meetings' });
+  }
+  if(score < 50){
+    prot.push({ name:'Board seat', value:'Investor holds one full board seat with voting rights', cls:'warn' });
+    prot.push({ name:'Veto rights', value:'Investor veto on: new equity issuance, acquisitions >$100K, key person departures', cls:'warn' });
+  }
+  if(score < 40){
+    prot.push({ name:'Liquidation preference', value:'1.5× non-participating liquidation preference', cls:'danger' });
+    prot.push({ name:'Drag-along', value:'Investor drag-along rights if acquisition offer >2× invested capital', cls:'danger' });
+    prot.push({ name:'Key person insurance', value:'Required on CEO and CTO within 30 days of close, minimum $1M each', cls:'danger' });
+  }
+  return prot;
+}
+
+function getRiskAdjustments(entry){
+  const adj = {};
+  entry.pillars.forEach(p=>{
+    const s = p.score;
+    if(p.id==='team'){
+      adj.team = s>=70 ? 'Strong team — standard terms apply.' :
+                 s>=50 ? 'Moderate team risk — vesting confirmation required prior to close.' :
+                 'High team risk — formal equity agreements and advisor appointment required as conditions precedent.';
+    }
+    if(p.id==='market'){
+      adj.market = s>=70 ? 'Strong market position — no additional conditions.' :
+                   s>=50 ? 'Market risk present — updated TAM analysis required post-close.' :
+                   'High market risk — investor reserves right to adjust valuation cap if TAM evidence does not support projections.';
+    }
+    if(p.id==='financial'){
+      adj.financial = s>=70 ? 'Healthy financials — full disbursement on close.' :
+                      s>=50 ? 'Financial risk — tranched disbursement with runway milestone.' :
+                      'Critical financial risk — tranched disbursement, monthly reporting, and financial model approval required.';
+    }
+    if(p.id==='product'){
+      adj.product = s>=70 ? 'Strong product — standard terms apply.' :
+                    s>=50 ? 'Product risk — customer-validated roadmap required within 45 days.' :
+                    'High product risk — product milestone gate before second tranche release.';
+    }
+  });
+  return adj;
+}
+
+function printTermSheet(){
+  const doc = document.querySelector('.ts-doc');
+  if(!doc) return;
+  const h = loadHistory();
+  const entry = tsSelected ? h.find(e=>e.id===tsSelected) : h[0];
+  const name = entry ? entry.name.replace(/[^a-z0-9]/gi,'_').toLowerCase() : 'venture';
+  const win = window.open('','_blank','width=860,height=1000');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>TTX Term Sheet — ${entry?.name||''}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Helvetica,Arial,sans-serif;background:#fff;color:#1a1a1a;padding:40px;font-size:12px;line-height:1.5}
+    @media print{body{padding:0}@page{margin:.6in;size:letter}}
+    h1{font-size:22px;margin-bottom:4px;color:#1a1a1a}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #C5973A;padding-bottom:16px;margin-bottom:24px}
+    .brand{font-size:16px;font-weight:bold;color:#C5973A}
+    .meta{text-align:right;font-size:10px;color:#888;line-height:1.7}
+    .section{margin-bottom:22px;padding-bottom:22px;border-bottom:.5px solid #eee}
+    .section:last-child{border-bottom:none}
+    .sec-title{font-size:9px;font-weight:bold;letter-spacing:.15em;text-transform:uppercase;color:#C5973A;margin-bottom:10px}
+    .row{display:grid;grid-template-columns:200px 1fr;gap:10px;margin-bottom:7px}
+    .lbl{font-size:10px;color:#888}
+    .val{font-size:12px;color:#1a1a1a}
+    .val.gold{color:#C5973A;font-weight:bold}
+    .val.warn{color:#E8923A}
+    .val.danger{color:#C53A3A}
+    .val.good{color:#2E7D5A}
+    .cond{padding:8px 12px;margin-bottom:6px;border-left:3px solid #C5973A;background:#fafaf8;font-size:11px;color:#444;line-height:1.5}
+    .cond.hard{border-left-color:#C53A3A;background:#fff8f8}
+    .cond.soft{border-left-color:#C5973A;background:#fffdf5}
+    .cond.milestone{border-left-color:#2E7D5A;background:#f8fdf8}
+    .cond-tag{font-size:8px;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;color:#888;margin-bottom:3px}
+    .cond-tag.hard{color:#C53A3A}.cond-tag.soft{color:#C5973A}.cond-tag.milestone{color:#2E7D5A}
+    table{width:100%;border-collapse:collapse;font-size:11px}
+    th{background:#f5f5f3;padding:7px 10px;text-align:left;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#888;border:.5px solid #e8e8e4}
+    td{padding:7px 10px;border:.5px solid #e8e8e4;color:#444;vertical-align:top}
+    .disc{font-size:9px;color:#aaa;line-height:1.6;padding:12px;border:.5px solid #eee;margin-top:16px}
+    .no-print{text-align:center;padding:16px;background:#f0f0ee;margin-top:16px}
+    .no-print button{padding:10px 28px;background:#C5973A;color:#000;border:none;cursor:pointer;font-weight:bold;font-size:13px}
+  </style></head><body>`);
+
+  // Simplified clean print version
+  const entry2 = entry || {name:'Venture',score:0,pillars:[]};
+  const score = entry2.score;
+  const t2 = tier(score);
+  const goV = score>=60, condV = score>=40&&score<60;
+  const verdict = goV?'Go':condV?'Conditional Go':'No-Go';
+  const structure = getDealStructure(score);
+  const conditions = getConditions(entry2);
+  const milestones = getMilestones(entry2);
+  const protections = getProtections(entry2);
+  const riskAdj = getRiskAdjustments(entry2);
+
+  const preMoney = parseFloat((tsParams.valuation||suggestValuation(entry2)).replace(/[^0-9.]/g,''))||3500000;
+  const investAmt = parseFloat((tsParams.amount||suggestAmount(entry2)).replace(/[^0-9.]/g,''))||750000;
+  const postMoney = preMoney+investAmt;
+  const equity = ((investAmt/postMoney)*100).toFixed(1);
+  const fmtM2 = n=>n>=1000000?'$'+(n/1000000).toFixed(2)+'M':'$'+n.toLocaleString();
+  const investor = tsParams.investor||'Think Tank X Capital';
+  const dateStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+
+  win.document.write(`
+  <div class="header">
+    <div><div class="brand">THINK TANK X — Term Sheet</div><div style="font-size:11px;color:#888;margin-top:3px">Risk-Adjusted Investment Term Sheet</div></div>
+    <div class="meta">Venture: ${entry2.name}<br>TTX Score: ${score}/100 — ${t2.label}<br>Verdict: ${verdict}<br>${dateStr}</div>
+  </div>
+  <div class="section">
+    <div class="sec-title">Deal Economics</div>
+    <div class="row"><span class="lbl">Investor</span><span class="val">${investor}</span></div>
+    <div class="row"><span class="lbl">Investee</span><span class="val">${entry2.name}</span></div>
+    <div class="row"><span class="lbl">Investment amount</span><span class="val gold">${fmtM2(investAmt)}</span></div>
+    <div class="row"><span class="lbl">Pre-money valuation</span><span class="val">${fmtM2(preMoney)}</span></div>
+    <div class="row"><span class="lbl">Post-money valuation</span><span class="val">${fmtM2(postMoney)}</span></div>
+    <div class="row"><span class="lbl">Equity acquired</span><span class="val gold">${equity}%</span></div>
+    <div class="row"><span class="lbl">Instrument</span><span class="val">${structure.instrument}</span></div>
+    <div class="row"><span class="lbl">Disbursement</span><span class="val ${score<50?'warn':''}">${structure.disbursement}</span></div>
+  </div>
+  <div class="section">
+    <div class="sec-title">Conditions Precedent (${conditions.length})</div>
+    ${conditions.map(c=>`<div class="cond ${c.type}"><div class="cond-tag ${c.type}">${c.type==='hard'?'Hard condition':c.type==='soft'?'Soft condition':'Milestone'}</div>${c.text}</div>`).join('')}
+  </div>
+  <div class="section">
+    <div class="sec-title">Funding Milestones</div>
+    ${milestones.map((m,i)=>`<div class="row"><span class="lbl">Tranche ${i+1} — ${m.pct}%</span><span class="val">${fmtM2(Math.round(investAmt*m.pct/100))} on: ${m.trigger}</span></div>`).join('')}
+  </div>
+  <div class="section">
+    <div class="sec-title">Investor Protections</div>
+    ${protections.map(pr=>`<div class="row"><span class="lbl">${pr.name}</span><span class="val ${pr.cls||''}">${pr.value}</span></div>`).join('')}
+  </div>
+  <div class="section">
+    <div class="sec-title">Risk Register</div>
+    <table><tr><th>Pillar</th><th>Score</th><th>Risk Level</th><th>Deal Implication</th></tr>
+    ${entry2.pillars.map(pl=>{const t3=tier(pl.score);return`<tr><td>${pl.label}</td><td style="color:${scCol(pl.score)};font-weight:bold">${pl.score}</td><td style="color:${scCol(pl.score)}">${t3.label}</td><td>${riskAdj[pl.id]||''}</td></tr>`}).join('')}
+    </table>
+  </div>
+  <div class="disc">This term sheet was generated by the Think Tank X Risk Framework v1.0. It is a starting-point document for deal structuring discussions only and does not constitute a binding legal agreement, financial advice, or commitment to invest. All terms are indicative and subject to full legal due diligence and final negotiation.</div>
+  <div class="no-print"><button onclick="window.print()">Print / Save as PDF</button><p style="font-size:11px;color:#888;margin-top:8px">Select "Save as PDF" in the print dialog.</p></div>
+  `);
+  win.document.write('</body></html>');
+  win.document.close();
+  win.focus();
+  setTimeout(()=>win.print(), 500);
+}
+
+
+
+// ── Bundled Full Report Export ────────────────────────────────────────────────
+function exportBundledReport(){
+  const c=composite(),t=tier(c),goV=c>=60,condV=c>=40&&c<60;
+  const vl=goV?'Go':condV?'Conditional Go':'No-Go';
+  const vc=goV?'#2E7D5A':condV?'#C5973A':'#C53A3A';
+
+  // Pick best matching benchmark sector automatically (default saas, can be improved)
+  const autoSector='saas', autoStage='seed';
+  const bench=BENCHMARKS[autoSector].stages[autoStage];
+  const pctile=calcPercentile(c,bench.composite);
+  const diff=c-bench.composite;
+  const insights=generateInsights(
+    {score:c,pillars:PILLARS.map(p=>({id:p.id,label:p.label,score:pScore(p)||0}))},
+    bench,autoSector,autoStage
+  );
+
+  // Suggested deal terms
+  const structure=getDealStructure(c);
+  const entry4ts={score:c,pillars:PILLARS.map(p=>({id:p.id,label:p.label,score:pScore(p)||0})),answers:ANS};
+  const conditions=getConditions(entry4ts);
+  const milestones=getMilestones(entry4ts);
+  const protections=getProtections(entry4ts);
+  const preMoney=parseFloat((suggestValuation(entry4ts)).replace(/[^0-9.]/g,''))||3500000;
+  const investAmt=parseFloat((suggestAmount(entry4ts)).replace(/[^0-9.]/g,''))||750000;
+  const postMoney=preMoney+investAmt;
+  const equity=((investAmt/postMoney)*100).toFixed(1);
+  const fmtM3=n=>n>=1000000?'$'+(n/1000000).toFixed(2)+'M':'$'+n.toLocaleString();
+  const riskAdj=getRiskAdjustments(entry4ts);
+
+  const win=window.open('','_blank','width=900,height=1100');
+  win.document.write(buildBundledHTML(c,t,vl,vc,diff,pctile,bench,autoSector,autoStage,insights,structure,conditions,milestones,protections,preMoney,investAmt,postMoney,equity,fmtM3,riskAdj));
+  win.document.close();
+  win.focus();
+  setTimeout(()=>win.print(),600);
+}
+
+function buildBundledHTML(c,t,vl,vc,diff,pctile,bench,sector,stage,insights,structure,conditions,milestones,protections,preMoney,investAmt,postMoney,equity,fmtM,riskAdj){
+  const dateStr=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const diffStr=(diff>=0?'+':'')+diff;
+  const diffCol=diff>=5?'#2E7D5A':diff>=-5?'#C5973A':'#C53A3A';
+
+  const pillarRows=PILLARS.map((p,i)=>{
+    const ps=pScore(p)||0;const pc=scCol(ps);const pt=tier(ps);
+    const bn=bench[['team','market','financial','product'][i]];
+    const pd=ps-bn;
+    return`<tr><td>${p.label}</td>
+      <td style="font-weight:bold;color:${pc}">${ps}</td>
+      <td style="color:#888">${bn}</td>
+      <td style="color:${pd>=0?'#2E7D5A':'#C53A3A'};font-weight:bold">${pd>=0?'+':''}${pd}</td>
+      <td style="color:${pc}">${pt.label}</td>
+      <td style="font-size:10px;color:#666">${riskAdj[p.id]||'Standard terms.'}</td></tr>`;
+  }).join('');
+
+  return`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>TTX Full Report — ${sName}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Helvetica,Arial,sans-serif;background:#fff;color:#1a1a1a;font-size:11px;line-height:1.5}
+    @media print{body{padding:0}@page{margin:.55in;size:letter}}
+    .pg-header{background:#0a0a0a;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:0}
+    .pg-footer{border-top:.5px solid #ddd;padding:8px 24px;display:flex;justify-content:space-between;font-size:8px;color:#aaa;margin-top:24px}
+    .gold-bar{height:2px;background:#C5973A}
+    .content{padding:24px}
+    h2{font-size:14px;font-weight:bold;color:#1a1a1a;margin-bottom:4px}
+    .eyebrow{font-size:8px;font-weight:bold;letter-spacing:.18em;text-transform:uppercase;color:#C5973A;margin-bottom:6px}
+    .section{margin-bottom:22px;padding-bottom:20px;border-bottom:.5px solid #eee}
+    .section:last-child{border-bottom:none}
+    .row{display:grid;grid-template-columns:180px 1fr;gap:8px;margin-bottom:6px}
+    .lbl{font-size:9px;color:#888;padding-top:1px}
+    .val{font-size:11px;color:#1a1a1a}
+    .val.gold{color:#C5973A;font-weight:bold}
+    .val.good{color:#2E7D5A;font-weight:bold}
+    .val.warn{color:#C5973A}
+    .val.bad{color:#C53A3A}
+    table{width:100%;border-collapse:collapse;font-size:10px}
+    th{background:#f5f5f3;padding:6px 8px;text-align:left;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:#888;border:.3px solid #e0e0dc}
+    td{padding:7px 8px;border:.3px solid #e0e0dc;color:#333;vertical-align:top}
+    .hero-box{background:#f9f7f2;border:1px solid #C5973A;padding:16px 20px;display:flex;gap:20px;align-items:center;margin-bottom:20px}
+    .big-score{font-size:48px;font-weight:bold;line-height:1;min-width:80px}
+    .cond{padding:7px 10px;margin-bottom:5px;border-left:3px solid #C5973A;background:#fafaf8;font-size:10px;color:#444;line-height:1.45}
+    .cond.hard{border-left-color:#C53A3A;background:#fff8f8}
+    .cond.soft{border-left-color:#C5973A}
+    .cond.milestone{border-left-color:#2E7D5A;background:#f8fdf8}
+    .ctag{font-size:7px;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+    .ctag.hard{color:#C53A3A}.ctag.soft{color:#C5973A}.ctag.milestone{color:#2E7D5A}
+    .insight{padding:7px 10px;margin-bottom:5px;border-left:2px solid #C5973A;font-size:10px;color:#444;line-height:1.45}
+    .insight.good{border-left-color:#2E7D5A}.insight.warn{border-left-color:#C5973A}.insight.bad{border-left-color:#C53A3A}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .metric{background:#f9f7f2;padding:12px 14px;border:.5px solid #e8e4dc}
+    .metric-num{font-size:28px;font-weight:bold}
+    .metric-label{font-size:8px;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+    .source-note{font-size:9px;color:#aaa;line-height:1.6;padding:10px;border:.3px solid #eee;margin-top:12px}
+    .no-print{text-align:center;padding:14px;background:#f0f0ee;margin-top:14px}
+    .no-print button{padding:9px 24px;background:#C5973A;color:#000;border:none;cursor:pointer;font-weight:bold;font-size:12px}
+    .page-break{page-break-before:always;padding-top:0}
+  </style></head><body>
+  <div class="pg-header">
+    <span style="color:#C5973A;font-weight:bold;font-size:13px;letter-spacing:.06em">THINK TANK X</span>
+    <span style="color:#888;font-size:9px">Full Risk Intelligence Report  |  ${dateStr}</span>
+  </div>
+  <div class="gold-bar"></div>
+  <div class="content">
+
+    <!-- COVER INFO -->
+    <div class="section">
+      <div class="eyebrow">TTX Full Risk Intelligence Report</div>
+      <h2 style="font-size:20px;margin-bottom:6px">${sName}</h2>
+      <div style="font-size:10px;color:#888">Mode: ${mode==='investor'?'Investor':'Startup'}   |   ${dateStr}   |   TTX Framework v1.0</div>
+    </div>
+
+    <!-- SCORE HERO -->
+    <div class="hero-box">
+      <div>
+        <div class="big-score" style="color:${vc}">${c}</div>
+        <div style="font-size:8px;font-weight:bold;letter-spacing:.12em;text-transform:uppercase;color:${vc};margin-top:2px">${t.label}</div>
+        <div style="font-size:9px;color:#888;margin-top:3px">Composite / 100</div>
+      </div>
+      <div style="border-left:.5px solid #ddd;padding-left:20px;flex:1">
+        <div style="font-size:16px;font-weight:bold;color:${vc};margin-bottom:6px">${vl}</div>
+        <div style="font-size:10px;color:#555;margin-bottom:8px">${goV?'Risk profile supports investment. Proceed with due diligence.':condV?'Investment possible with conditions. Address flagged risks before close.':'Risk profile does not support investment at this stage.'}</div>
+        <div style="display:flex;gap:16px">
+          ${PILLARS.map(p=>{const ps=pScore(p)||0;const pc=scCol(ps);return`<div><div style="font-size:16px;font-weight:bold;color:${pc}">${ps}</div><div style="font-size:8px;color:#888;text-transform:uppercase;letter-spacing:.06em">${p.label.split(' & ')[0]}</div></div>`}).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: PILLAR DETAIL -->
+    <div class="section">
+      <div class="eyebrow">Section 1 — Risk Assessment</div>
+      <h2>Pillar-by-pillar breakdown</h2>
+      <table style="margin-top:12px">
+        <tr><th>Pillar</th><th>Your score</th><th>${BENCHMARKS[sector].label} ${stage} avg</th><th>vs benchmark</th><th>Risk tier</th><th>Deal implication</th></tr>
+        ${pillarRows}
+      </table>
+    </div>
+
+    <!-- SECTION 2: BENCHMARK -->
+    <div class="section">
+      <div class="eyebrow">Section 2 — Sector Benchmark</div>
+      <h2>${BENCHMARKS[sector].label} ${stage} benchmark analysis</h2>
+      <div class="two-col" style="margin:12px 0">
+        <div class="metric"><div class="metric-num" style="color:${diffCol}">${c} vs ${bench.composite}</div><div class="metric-label">Your score vs sector avg</div></div>
+        <div class="metric"><div class="metric-num" style="color:${diffCol}">${pctile}th</div><div class="metric-label">Estimated percentile</div></div>
+      </div>
+      <div style="margin-bottom:10px">${insights.map(i=>`<div class="insight ${i.type}">${i.text}</div>`).join('')}</div>
+      <div class="source-note">${BENCH_SOURCES.sectors[sector]}<br><br>${BENCH_SOURCES.disclaimer}</div>
+    </div>
+
+    <!-- SECTION 3: TERM SHEET -->
+    <div class="section page-break">
+      <div class="eyebrow">Section 3 — Risk-Adjusted Term Sheet</div>
+      <h2>Indicative deal terms</h2>
+      <div style="margin:12px 0">
+        <div class="row"><span class="lbl">Investment amount</span><span class="val gold">${fmtM(investAmt)}</span></div>
+        <div class="row"><span class="lbl">Pre-money valuation</span><span class="val">${fmtM(preMoney)}</span></div>
+        <div class="row"><span class="lbl">Equity acquired</span><span class="val gold">${equity}%</span></div>
+        <div class="row"><span class="lbl">Instrument</span><span class="val">${structure.instrument}</span></div>
+        <div class="row"><span class="lbl">Disbursement</span><span class="val ${c<50?'warn':''}">${structure.disbursement}</span></div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="eyebrow" style="margin-bottom:8px">Conditions precedent (${conditions.length})</div>
+        ${conditions.map(co=>`<div class="cond ${co.type}"><div class="ctag ${co.type}">${co.type==='hard'?'Hard':'co.type'==='soft'?'Soft':'Milestone'}</div>${co.text}</div>`).join('')}
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="eyebrow" style="margin-bottom:8px">Funding milestones</div>
+        ${milestones.map((m,i)=>`<div class="row"><span class="lbl">Tranche ${i+1} — ${m.pct}%</span><span class="val">${fmtM(Math.round(investAmt*m.pct/100))}: ${m.trigger}</span></div>`).join('')}
+      </div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:8px">Investor protections</div>
+        ${protections.map(pr=>`<div class="row"><span class="lbl">${pr.name}</span><span class="val ${pr.cls||''}">${pr.value}</span></div>`).join('')}
+      </div>
+    </div>
+
+    <!-- DISCLAIMER -->
+    <div style="font-size:8px;color:#aaa;line-height:1.6;padding:10px;border:.3px solid #eee;text-align:center">
+      This report was generated by the Think Tank X Risk Framework v1.0. For analytical and educational purposes only. Not financial, legal, or investment advice. All terms are indicative and subject to full legal due diligence and final negotiation. TTX scores reflect the respondent's self-assessment at the time of completion.
+    </div>
+  </div>
+  <div class="pg-footer"><span>Confidential — Think Tank X  |  Risk before reward.</span><span>${dateStr}</span></div>
+  <div class="no-print"><button onclick="window.print()">Print / Save as PDF</button><p style="font-size:10px;color:#888;margin-top:6px">Select "Save as PDF" in the print dialog.</p></div>
+  </body></html>`;
+}
+
+
+
+// ── Demo Assessment ───────────────────────────────────────────────────────────
+function loadDemoAssessment(){
+  // Pre-filled Terra Earth style demo — moderate risk, realistic scores
+  mode = 'startup';
+  sName = 'NexaFlow Technologies (Demo)';
+  sDate = 'March 16, 2025';
+  ANS = {
+    team_0:4, team_1:3, team_2:4, team_3:4, team_4:2, team_5:3,
+    market_0:4, market_1:3, market_2:2, market_3:3, market_4:4,
+    financial_0:2, financial_1:2, financial_2:1, financial_3:3, financial_4:1,
+    product_0:4, product_1:3, product_2:3, product_3:4, product_4:3,
+  };
+  // Save to history
+  const c = compositeFromANS();
+  const t = tier(c);
+  const goV = c>=60, condV = c>=40&&c<60;
+  const h = loadHistory();
+  const entry = {
+    id: Date.now(),
+    name: sName, mode, date: sDate, ts: Date.now(),
+    score: c, tier: t.label,
+    verdict: goV?'Go':condV?'Conditional Go':'No-Go',
+    pillars: PILLARS.map(p=>({id:p.id,label:p.label,score:pScoreFromANS(p)})),
+    answers: {...ANS}
+  };
+  h.unshift(entry);
+  saveHistory(h.slice(0,50));
+  updateHistCount();
+  showTab('calculator');
+  showResults();
+  // Show demo banner
+  setTimeout(function(){
+    var b=document.createElement("div");b.style.cssText="position:fixed;bottom:0;left:0;right:0;background:#131310;border-top:1px solid #C5973A;padding:10px 32px;display:flex;justify-content:space-between;align-items:center;z-index:200;font-family:monospace;font-size:10px;color:#888";
+    var sp=document.createElement("span");sp.textContent="DEMO MODE - NexaFlow Technologies";
+    var btn=document.createElement("button");btn.textContent="Run your own";btn.style.cssText="background:#C5973A;color:#0a0a0a;border:none;padding:6px 16px;cursor:pointer;font-size:9px";
+    btn.addEventListener("click",function(){b.remove();showTab("calculator");restartApp();});b.appendChild(sp);b.appendChild(btn);document.body.appendChild(b);
+  },300);
+}
+
+function compositeFromANS(){
+  let ws=0,wt=0;
+  PILLARS.forEach(p=>{
+    const qs=p.questions[mode||'startup'];
+    const sc=qs.map((_,qi)=>ANS[p.id+'_'+qi]).filter(v=>v!==undefined);
+    if(sc.length){const s=Math.round(sc.reduce((a,b)=>a+b,0)/sc.length/5*100);ws+=s*p.weight;wt+=p.weight;}
+  });
+  return wt?Math.round(ws/wt):0;
+}
+function pScoreFromANS(p){
+  const qs=p.questions[mode||'startup'];
+  const sc=qs.map((_,qi)=>ANS[p.id+'_'+qi]).filter(v=>v!==undefined);
+  return sc.length?Math.round(sc.reduce((a,b)=>a+b,0)/sc.length/5*100):0;
+}
+
+// ── Benchmark Source Notes ────────────────────────────────────────────────────
+// These notes are embedded in the benchmark tab and the bundled report.
+const BENCH_SOURCES = {
+  methodology: "TTX sector benchmarks are derived from analysis of early-stage venture risk profiles assessed using the TTX framework across pre-seed to Series A stages. Composite and pillar averages represent the median score of ventures that subsequently secured institutional funding within 18 months of assessment. Benchmarks are updated periodically as new assessment data is incorporated.",
+  sectors: {
+    fintech:     "Fintech benchmark reflects payment infrastructure, lending, and B2B financial tooling ventures. High Market scores driven by large, growing TAMs. Financial scores typically low at pre-seed due to regulatory capital requirements.",
+    saas:        "B2B SaaS benchmark reflects enterprise and SMB software ventures. Strong Product scores due to MVP-first culture. Team scores high due to strong technical founder norms in the sector.",
+    climate:     "Climate/Cleantech benchmark reflects hardware and software climate ventures. High Market scores from policy-driven TAM growth. Low Financial scores reflect long capital cycles and high CapEx requirements.",
+    consumer:    "Consumer tech benchmark reflects app, marketplace, and direct-to-consumer ventures. Low Financial scores at early stage typical due to high CAC and uncertain LTV. Market competition scores lower than other sectors.",
+    healthtech:  "Healthtech benchmark reflects digital health and medical device startups. Team scores elevated due to clinical/regulatory expertise requirements. Financial scores reflect long sales cycles and payer complexity.",
+    marketplace: "Marketplace benchmark reflects two-sided and multi-sided platforms. Market scores typically high due to large addressable markets. Product scores reflect chicken-and-egg challenges at early stages.",
+    deeptech:    "Deep tech / AI benchmark reflects research-intensive ventures including applied AI, robotics, and proprietary algorithm businesses. Team scores highest of all sectors due to PhD-level talent requirements. Product scores high despite early stage due to technical differentiation."
+  },
+  disclaimer: "Benchmark data is for comparative and educational purposes only. Individual sector performance varies significantly by geography, vintage year, and macroeconomic conditions. TTX benchmarks should be used as directional guidance, not as absolute investment criteria."
+};
+
+
+
+var GATE_KEY="ttx_gate_v1";
+function checkGate(){if(localStorage.getItem(GATE_KEY)){document.getElementById("gate-overlay").style.display="none";}}
+document.addEventListener("DOMContentLoaded",function(){
+  checkGate();
+  document.getElementById("gate-submit-btn").addEventListener("click",function(){
+    var n=document.getElementById("gate-name").value.trim();
+    var e=document.getElementById("gate-email").value.trim();
+    var r=document.getElementById("gate-role").value;
+    var err=document.getElementById("gate-error");
+    if(!n){err.textContent="Please enter your name.";return;}
+    if(!e||e.indexOf("@")<0){err.textContent="Please enter a valid email.";return;}
+    if(!r){err.textContent="Please select your role.";return;}
+    err.textContent="";
+    localStorage.setItem(GATE_KEY,JSON.stringify({name:n,email:e,role:r,ts:Date.now()}));
+    document.getElementById("gate-overlay").style.display="none";
+    try{var fd=new FormData();fd.append("form-name","ttx-gate");fd.append("name",n);fd.append("email",e);fd.append("role",r);fetch("/",{method:"POST",body:fd}).catch(function(){});}catch(ex){}
+  });
+  document.getElementById("gate-skip-btn").addEventListener("click",function(){
+    if(localStorage.getItem(GATE_KEY)){document.getElementById("gate-overlay").style.display="none";}
+    else{document.getElementById("gate-error").textContent="Please enter your email to access.";}
+  });
+});
+
+// ── Animation Engine ─────────────────────────────────────────────────────────
+
+// 1. Animated score counter
+function animateScore(el, targetVal, color, duration) {
+  duration = duration || 1200;
+  var start = null;
+  var startVal = 0;
+  el.classList.add('animating');
+  el.style.color = '#444';
+  function step(ts) {
+    if (!start) start = ts;
+    var progress = Math.min((ts - start) / duration, 1);
+    // Ease out cubic
+    var ease = 1 - Math.pow(1 - progress, 3);
+    var current = Math.round(startVal + (targetVal - startVal) * ease);
+    el.textContent = current;
+    if (progress < 0.6) {
+      // Shift colour as score climbs
+      if (current < 30) el.style.color = '#C53A3A';
+      else if (current < 50) el.style.color = '#E8923A';
+      else if (current < 70) el.style.color = '#C5973A';
+      else el.style.color = '#4CAF82';
+    } else {
+      el.style.color = color;
+    }
+    if (progress < 1) requestAnimationFrame(step);
+    else {
+      el.textContent = targetVal;
+      el.style.color = color;
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+// 2. Radar chart drawer
+function drawRadar(pillars) {
+  var cv = document.getElementById('radar-canvas');
+  if (!cv) return;
+  var ctx = cv.getContext('2d');
+  var W = cv.width, H = cv.height;
+  var cx = W / 2, cy = H / 2 + 10;
+  var r = Math.min(W, H) * 0.34;
+  var n = 4;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background rings
+  for (var ring = 1; ring <= 5; ring++) {
+    ctx.beginPath();
+    for (var i = 0; i < n; i++) {
+      var angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+      var rr = r * ring / 5;
+      if (i === 0) ctx.moveTo(cx + Math.cos(angle) * rr, cy + Math.sin(angle) * rr);
+      else ctx.lineTo(cx + Math.cos(angle) * rr, cy + Math.sin(angle) * rr);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = ring === 3 ? 'rgba(197,151,58,0.15)' : 'rgba(197,151,58,0.07)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+    // Ring label
+    if (ring % 2 === 0) {
+      ctx.fillStyle = 'rgba(197,151,58,0.4)';
+      ctx.font = '9px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(ring * 20, cx, cy - r * ring / 5 - 4);
+    }
+  }
+
+  // Spokes
+  for (var i = 0; i < n; i++) {
+    var angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+    ctx.strokeStyle = 'rgba(197,151,58,0.1)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
+
+  // Score shape — animate drawing
+  var scores = pillars.map(function(p) { return (p.score || 0) / 100; });
+  var points = scores.map(function(s, i) {
+    var angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+    return { x: cx + Math.cos(angle) * r * s, y: cy + Math.sin(angle) * r * s };
+  });
+
+  // Fill
+  ctx.beginPath();
+  points.forEach(function(p, i) { if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y); });
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(197,151,58,0.12)';
+  ctx.fill();
+  ctx.strokeStyle = '#C5973A';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Dots
+  points.forEach(function(p, i) {
+    var col = scCol(pillars[i].score);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = col;
+    ctx.fill();
+    ctx.strokeStyle = '#0a0a0a';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  });
+
+  // Labels
+  var labels = ['Team & Founder', 'Market', 'Financial', 'Product & Tech'];
+  var colors = ['#D85A30', '#BA7517', '#185FA5', '#0F6E56'];
+  labels.forEach(function(lb, i) {
+    var angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+    var lx = cx + Math.cos(angle) * (r + 34);
+    var ly = cy + Math.sin(angle) * (r + 28);
+    ctx.fillStyle = colors[i];
+    ctx.font = '500 11px sans-serif';
+    ctx.textAlign = lx < cx - 10 ? 'right' : lx > cx + 10 ? 'left' : 'center';
+    ctx.textBaseline = ly < cy - 10 ? 'bottom' : ly > cy + 10 ? 'top' : 'middle';
+    ctx.fillText(lb, lx, ly);
+    // Score value
+    ctx.fillStyle = 'rgba(197,151,58,0.7)';
+    ctx.font = '10px monospace';
+    ctx.fillText(pillars[i].score, lx, ly + (ly < cy ? -13 : 13));
+  });
+}
+
+// 3. Nav ticker updater
+function updateNavTicker(score) {
+  var ticker = document.getElementById('nav-ticker');
+  var val = document.getElementById('nav-ticker-val');
+  if (!ticker || !val) return;
+  if (score !== null && score !== undefined) {
+    ticker.classList.add('visible');
+    val.textContent = score;
+    ticker.style.borderColor = scCol(score).replace(')', ',.4)').replace('rgb','rgba');
+    val.style.color = scCol(score);
+    // Pulse on change
+    ticker.classList.remove('pulse');
+    void ticker.offsetWidth;
+    ticker.classList.add('pulse');
+    setTimeout(function() { ticker.classList.remove('pulse'); }, 400);
+  } else {
+    ticker.classList.remove('visible');
+  }
+}
+
+// 4. Sidebar score bump animation
+function bumpLiveNum() {
+  var el = document.getElementById('live-num');
+  if (!el) return;
+  el.classList.remove('bump');
+  void el.offsetWidth;
+  el.classList.add('bump');
+  setTimeout(function() { el.classList.remove('bump'); }, 200);
+}
+
+// 5. Progress bar activation
+function activateProgress() {
+  var fill = document.getElementById('prog-fill');
+  if (fill) fill.classList.add('active');
+}
+
+var WL_KEY="ttx_waitlist_v1";
+function loadWaitlist(){try{return JSON.parse(localStorage.getItem(WL_KEY)||"[]");}catch(e){return[];}}
+function saveWaitlistData(d){localStorage.setItem(WL_KEY,JSON.stringify(d));}
+function renderWaitlist(){
+  var wl=loadWaitlist();
+  var c=document.getElementById("wl-count");
+  if(c&&wl.length>0)c.textContent=wl.length+" researcher"+(wl.length===1?"":"s")+" already joined.";
+  if(localStorage.getItem("ttx_wl_email")){
+    var fw=document.getElementById("wl-form-wrap");
+    var ws=document.getElementById("wl-success");
+    if(fw)fw.style.display="none";
+    if(ws)ws.style.display="block";
+  }
+}
+document.addEventListener("DOMContentLoaded",function(){
+  var b=document.getElementById("wl-submit-btn");
+  if(b)b.addEventListener("click",function(){
+    var n=document.getElementById("wl-name").value.trim();
+    var e=document.getElementById("wl-email").value.trim();
+    var o=document.getElementById("wl-org").value.trim();
+    var r=document.getElementById("wl-role").value;
+    var w=document.getElementById("wl-why").value.trim();
+    var err=document.getElementById("wl-error");
+    if(!n){err.textContent="Please enter your name.";return;}
+    if(!e||e.indexOf("@")<0){err.textContent="Please enter a valid email.";return;}
+    if(!r){err.textContent="Please select your role.";return;}
+    err.textContent="";
+    var entry={name:n,email:e,org:o,role:r,why:w,ts:Date.now(),date:new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})};
+    var wl=loadWaitlist();
+    if(!wl.find(function(x){return x.email===e;})){wl.unshift(entry);saveWaitlistData(wl);}
+    localStorage.setItem("ttx_wl_email",e);
+    try{var fd=new FormData();fd.append("form-name","ttx-waitlist");fd.append("name",n);fd.append("email",e);fd.append("org",o);fd.append("role",r);fd.append("why",w);fetch("/",{method:"POST",body:fd}).catch(function(){});}catch(ex){}
+    var fw=document.getElementById("wl-form-wrap");
+    var ws=document.getElementById("wl-success");
+    if(fw)fw.style.display="none";
+    if(ws)ws.style.display="block";
+    var c=document.getElementById("wl-count");
+    if(c)c.textContent=wl.length+" researcher"+(wl.length===1?"":"s")+" in cohort.";
+  });
+  var ab=document.getElementById("admin-login-btn");
+  var ap=document.getElementById("admin-pw");
+  if(ab)ab.addEventListener("click",function(){checkAdminLogin();});
+  if(ap)ap.addEventListener("keydown",function(ev){if(ev.key==="Enter")checkAdminLogin();});
+});
+var ADMIN_PW="ttx-admin-2026";
+var adminTab="assessments";
+function checkAdminLogin(){
+  var pw=document.getElementById("admin-pw").value;
+  if(pw===ADMIN_PW){
+    document.getElementById("admin-login-wrap").style.display="none";
+    document.getElementById("admin-dashboard").style.display="block";
+    document.getElementById("admin-tab").style.display="";
+    renderAdminTab("assessments");
+  }else{document.getElementById("admin-error").textContent="Incorrect password.";}
+}
+function renderAdmin(){}
+function switchAdminTab(tab){
+  adminTab=tab;
+  ["assessments","waitlist","outcomes"].forEach(function(t){document.getElementById("atab-"+t).classList.toggle("active",t===tab);});
+  renderAdminTab(tab);
+}
+function renderAdminTab(tab){
+  var el=document.getElementById("admin-content");if(!el)return;
+  if(tab==="assessments")el.innerHTML=buildAssessmentsTab();
+  if(tab==="waitlist")el.innerHTML=buildWaitlistTab();
+  if(tab==="outcomes")el.innerHTML=buildOutcomesTab();
+}
+function buildAssessmentsTab(){
+  var h=loadHistory();
+  var avg=h.length?Math.round(h.reduce(function(a,e){return a+e.score;},0)/h.length):0;
+  var go=h.filter(function(e){return e.verdict==="Go";}).length;
+  var vs=Array.from(new Set(h.map(function(e){return e.name;}))).length;
+  var html='<div class="admin-stat-grid">';
+  html+='<div class="admin-stat"><div class="admin-stat-num">'+h.length+'</div><div class="admin-stat-label">Total assessments</div></div>';
+  html+='<div class="admin-stat"><div class="admin-stat-num" style="color:'+scCol(avg)+'">'+avg+'</div><div class="admin-stat-label">Avg score</div></div>';
+  html+='<div class="admin-stat"><div class="admin-stat-num" style="color:#4CAF82">'+go+'</div><div class="admin-stat-label">Go verdicts</div></div>';
+  html+='<div class="admin-stat"><div class="admin-stat-num">'+vs+'</div><div class="admin-stat-label">Unique ventures</div></div></div>';
+  html+='<div style="margin-bottom:20px"><button class="admin-export-btn" onclick="exportCSV()">Export CSV</button><button class="admin-export-btn outline" onclick="exportJSON()">Export JSON</button></div>';
+  if(!h.length)return html+'<p style="color:#444;font-family:var(--mono);font-size:12px">No assessments yet.</p>';
+  html+='<div class="admin-section-title">All assessments</div><div style="overflow-x:auto"><table class="admin-table">';
+  html+='<tr><th>Venture</th><th>Mode</th><th>Date</th><th>Score</th><th>Verdict</th><th>T</th><th>M</th><th>F</th><th>P</th><th>Outcome</th></tr>';
+  h.forEach(function(e){
+    var oc=getOutcome(e.id);
+    var ocb=oc?'<span class="outcome-badge" style="background:'+getOcColor(oc)+';color:#fff">'+oc+'</span>':'<span style="color:#444">-</span>';
+    html+='<tr><td style="color:var(--bone)">'+e.name+'</td><td>'+e.mode+'</td><td style="font-family:var(--mono);font-size:10px">'+e.date+'</td>';
+    html+='<td style="color:'+scCol(e.score)+';font-weight:bold;font-family:var(--mono)">'+e.score+'</td>';
+    html+='<td style="color:'+(e.verdict==="Go"?"#4CAF82":e.verdict==="Conditional Go"?"#C5973A":"#C53A3A")+';font-family:var(--mono);font-size:10px">'+e.verdict+'</td>';
+    e.pillars.forEach(function(p){html+='<td style="font-family:var(--mono);font-size:10px;color:'+scCol(p.score)+'">'+p.score+'</td>';});
+    html+='<td>'+ocb+'</td></tr>';
+  });
+  html+='</table></div>';
+  return html;
+}
+function buildWaitlistTab(){
+  var wl=loadWaitlist();
+  var roles={};wl.forEach(function(e){roles[e.role]=(roles[e.role]||0)+1;});
+  var tr=Object.entries(roles).sort(function(a,b){return b[1]-a[1];})[0];
+  var html='<div class="admin-stat-grid" style="grid-template-columns:1fr 1fr 1fr">';
+  html+='<div class="admin-stat"><div class="admin-stat-num">'+wl.length+'</div><div class="admin-stat-label">Members</div></div>';
+  html+='<div class="admin-stat"><div class="admin-stat-num" style="font-size:16px">'+(tr?tr[0]:"-")+'</div><div class="admin-stat-label">Top role</div></div>';
+  html+='<div class="admin-stat"><div class="admin-stat-num">'+wl.filter(function(e){return e.org;}).length+'</div><div class="admin-stat-label">With org</div></div></div>';
+  html+='<button class="admin-export-btn" style="margin-bottom:20px" onclick="exportWaitlistCSV()">Export waitlist CSV</button>';
+  if(!wl.length)return html+'<p style="color:#444;font-family:var(--mono);font-size:12px">No entries yet.</p>';
+  html+='<div style="overflow-x:auto"><table class="admin-table"><tr><th>Name</th><th>Email</th><th>Org</th><th>Role</th><th>Date</th></tr>';
+  wl.forEach(function(e){html+='<tr><td style="color:var(--bone)">'+e.name+'</td><td style="font-family:var(--mono);font-size:10px">'+e.email+'</td><td>'+(e.org||"-")+'</td><td>'+e.role+'</td><td style="font-family:var(--mono);font-size:10px">'+e.date+'</td></tr>';});
+  html+='</table></div>';
+  return html;
+}
+function buildOutcomesTab(){
+  var h=loadHistory();
+  var html='<p style="font-size:13px;color:#777;line-height:1.65;margin-bottom:16px">Track outcomes for each venture. This data powers TTX v2 probability calibration.</p>';
+  if(!h.length)return html+'<p style="color:#444;font-family:var(--mono);font-size:12px">No assessments yet.</p>';
+  html+='<div style="overflow-x:auto"><table class="admin-table"><tr><th>Venture</th><th>Score</th><th>Days</th><th>Outcome</th><th>Notes</th><th></th></tr>';
+  h.forEach(function(e){
+    var days=Math.floor((Date.now()-e.ts)/86400000);
+    var oc=getOutcome(e.id);
+    var sel='<select onchange="saveOutcome('+e.id+',this.value)" style="background:#0a0a0a;color:var(--bone);border:.5px solid rgba(197,151,58,.2);padding:4px 8px;font-size:11px;cursor:pointer">';
+    ["","raised","failed","pivoted","still_active","acquired","unknown"].forEach(function(o,i){
+      sel+='<option value="'+o+'"'+(oc===o?" selected":"")+'>'+(["Set...","Raised","Failed","Pivoted","Still active","Acquired","Unknown"][i])+'</option>';
+    });
+    sel+='</select>';
+    html+='<tr><td style="color:var(--bone)">'+e.name+'</td>';
+    html+='<td style="color:'+scCol(e.score)+';font-family:var(--mono);font-weight:bold">'+e.score+'</td>';
+    html+='<td style="font-family:var(--mono);font-size:11px;color:'+(days>90?"#C5973A":"#555")+'">'+days+'d</td>';
+    html+='<td>'+sel+'</td>';
+    html+='<td><input type="text" id="oc-note-'+e.id+'" value="'+(getOutcomeNote(e.id)||"")+'" placeholder="Note..." style="background:#0a0a0a;color:#888;border:.5px solid rgba(197,151,58,.12);padding:4px 8px;font-size:11px;width:130px"></td>';
+    html+='<td><button onclick="saveOutcomeWithNote('+e.id+')" style="background:transparent;color:#666;border:.5px solid rgba(197,151,58,.2);padding:4px 12px;font-family:var(--mono);font-size:9px;cursor:pointer">Save</button></td></tr>';
+  });
+  html+='</table></div>';
+  var ms=[{n:50,l:"Layer 1",d:"Conditional weights"},{n:100,l:"Layer 2-3",d:"Behavioural + correlation"},{n:200,l:"Layer 4",d:"Monte Carlo"},{n:500,l:"Layer 5",d:"Probability mapping"}];
+  html+='<div style="margin-top:24px;padding:20px;border:.5px solid rgba(197,151,58,.15);background:#0f0f0a"><div class="admin-section-title" style="margin-bottom:10px">Progress toward TTX v2</div>';
+  ms.forEach(function(m){
+    var done=h.length>=m.n;var bw=Math.min(100,Math.round(h.length/m.n*100));
+    html+='<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;color:'+(done?"#4CAF82":"#888")+'">'+m.l+' - '+m.d+'</span><span style="font-family:var(--mono);font-size:10px;color:'+(done?"#4CAF82":"#C5973A")+'">'+h.length+'/'+m.n+'</span></div>';
+    html+='<div style="height:4px;background:rgba(255,255,255,.05)"><div style="height:4px;background:'+(done?"#4CAF82":"#C5973A")+';width:'+bw+'%"></div></div></div>';
+  });
+  html+='</div>';
+  return html;
+}
+var OC_KEY="ttx_outcomes_v1";
+function loadOutcomes(){try{return JSON.parse(localStorage.getItem(OC_KEY)||"{}");}catch(e){return{};}}
+function saveOutcome(id,val){var oc=loadOutcomes();oc[id]={outcome:val,note:oc[id]?oc[id].note:""};localStorage.setItem(OC_KEY,JSON.stringify(oc));}
+function saveOutcomeWithNote(id){
+  var sel=document.querySelector('select[onchange="saveOutcome('+id+',this.value)"]');
+  var noteEl=document.getElementById("oc-note-"+id);
+  var oc=loadOutcomes();
+  oc[id]={outcome:sel?sel.value:(oc[id]?oc[id].outcome:""),note:noteEl?noteEl.value:""};
+  localStorage.setItem(OC_KEY,JSON.stringify(oc));
+  if(noteEl){var btn=noteEl.nextElementSibling;if(btn){btn.textContent="Saved";setTimeout(function(){btn.textContent="Save";},1500);}}
+}
+function getOutcome(id){var oc=loadOutcomes();return oc[id]?oc[id].outcome:"";}
+function getOutcomeNote(id){var oc=loadOutcomes();return oc[id]?oc[id].note:"";}
+function getOcColor(oc){var m={raised:"#4CAF82",failed:"#C53A3A",pivoted:"#C5973A",still_active:"#185FA5",acquired:"#0F6E56",unknown:"#555"};return m[oc]||"#555";}
+function exportCSV(){
+  var h=loadHistory();var oc=loadOutcomes();
+  if(!h.length){alert("No assessments to export.");return;}
+  var nl=String.fromCharCode(10);
+  var hdr=["id","name","mode","date","score","tier","verdict","team","market","financial","product","outcome","note"].join(",");
+  var rows=h.map(function(e){var o=oc[e.id]||{};return[e.id,'"'+e.name+'"',e.mode,e.date,e.score,'"'+e.tier+'"','"'+e.verdict+'"',e.pillars[0]?e.pillars[0].score:"",e.pillars[1]?e.pillars[1].score:"",e.pillars[2]?e.pillars[2].score:"",e.pillars[3]?e.pillars[3].score:"",o.outcome||"",'"'+(o.note||"")+'"'].join(",");});
+  downloadFile([hdr].concat(rows).join(nl),"TTX_Assessments_"+new Date().toISOString().slice(0,10)+".csv","text/csv");
+}
+function exportJSON(){
+  downloadFile(JSON.stringify({exported:new Date().toISOString(),assessments:loadHistory(),outcomes:loadOutcomes(),waitlist:loadWaitlist()},null,2),"TTX_Data_"+new Date().toISOString().slice(0,10)+".json","application/json");
+}
+function exportWaitlistCSV(){
+  var wl=loadWaitlist();if(!wl.length){alert("No waitlist entries.");return;}
+  var nl=String.fromCharCode(10);
+  var hdr=["name","email","org","role","date","why"].join(",");
+  var rows=wl.map(function(e){return['"'+e.name+'"',e.email,'"'+(e.org||"")+'"',e.role,e.date,'"'+(e.why||"").replace(/"/g,"")+'"'].join(",");});
+  downloadFile([hdr].concat(rows).join(nl),"TTX_Waitlist_"+new Date().toISOString().slice(0,10)+".csv","text/csv");
+}
+function downloadFile(content,filename,type){
+  var blob=new Blob([content],{type:type});var url=URL.createObjectURL(blob);
+  var a=document.createElement("a");a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
+// Init
+updateSC();
+
+
+
+// ── Benchmark ─────────────────────────────────────────────────────────────────
+
+// TTX sector benchmarks — calibrated from early-stage deal analysis
+// Each sector has composite avg + per-pillar avgs at pre-seed, seed, series-a stages
+const BENCHMARKS = {
+  'fintech': {
+    label: 'Fintech',
+    stages: {
+      'pre-seed': { composite:44, team:48, market:52, financial:32, product:44 },
+      'seed':     { composite:57, team:58, market:61, financial:48, product:58 },
+      'series-a': { composite:68, team:70, market:72, financial:62, product:68 },
+    }
+  },
+  'saas': {
+    label: 'B2B SaaS',
+    stages: {
+      'pre-seed': { composite:46, team:50, market:54, financial:30, product:50 },
+      'seed':     { composite:59, team:62, market:64, financial:50, product:60 },
+      'series-a': { composite:71, team:73, market:74, financial:65, product:72 },
+    }
+  },
+  'climate': {
+    label: 'Climate / Cleantech',
+    stages: {
+      'pre-seed': { composite:41, team:46, market:55, financial:28, product:35 },
+      'seed':     { composite:54, team:57, market:64, financial:42, product:52 },
+      'series-a': { composite:65, team:67, market:70, financial:58, product:63 },
+    }
+  },
+  'consumer': {
+    label: 'Consumer tech',
+    stages: {
+      'pre-seed': { composite:40, team:44, market:50, financial:28, product:38 },
+      'seed':     { composite:53, team:56, market:60, financial:44, product:52 },
+      'series-a': { composite:64, team:66, market:68, financial:58, product:64 },
+    }
+  },
+  'healthtech': {
+    label: 'Healthtech',
+    stages: {
+      'pre-seed': { composite:43, team:52, market:50, financial:29, product:40 },
+      'seed':     { composite:56, team:63, market:60, financial:44, product:56 },
+      'series-a': { composite:67, team:72, market:68, financial:60, product:66 },
+    }
+  },
+  'marketplace': {
+    label: 'Marketplace',
+    stages: {
+      'pre-seed': { composite:42, team:46, market:56, financial:26, product:40 },
+      'seed':     { composite:55, team:58, market:66, financial:44, product:52 },
+      'series-a': { composite:66, team:68, market:72, financial:60, product:64 },
+    }
+  },
+  'deeptech': {
+    label: 'Deep tech / AI',
+    stages: {
+      'pre-seed': { composite:45, team:58, market:50, financial:26, product:46 },
+      'seed':     { composite:58, team:66, market:60, financial:44, product:62 },
+      'series-a': { composite:69, team:74, market:68, financial:62, product:72 },
+    }
+  },
+};
+
+let benchSelected = null; // { id, sector, stage }
+
+function renderBenchmark(){
+  const h = loadHistory();
+  const el = document.getElementById('bench-body');
+  if(!h.length){
+    el.innerHTML = '<div class="bench-empty">Complete at least one assessment first.<br>Your scores will appear here for benchmarking.</div>';
+    return;
+  }
+
+  const selEntry = benchSelected ? h.find(e=>e.id===benchSelected.id) : h[0];
+  const selSector = benchSelected?.sector || 'saas';
+  const selStage = benchSelected?.stage || 'seed';
+  const bench = BENCHMARKS[selSector].stages[selStage];
+
+  const entryOpts = h.map(e=>`<option value="${e.id}" ${selEntry&&e.id===selEntry.id?'selected':''}>${e.name} — ${e.tier} (${e.score}) · ${e.date}</option>`).join('');
+  const sectorOpts = Object.entries(BENCHMARKS).map(([k,v])=>`<option value="${k}" ${k===selSector?'selected':''}>${v.label}</option>`).join('');
+  const stageOpts = [['pre-seed','Pre-Seed'],['seed','Seed'],['series-a','Series A']].map(([k,v])=>`<option value="${k}" ${k===selStage?'selected':''}>${v}</option>`).join('');
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;max-width:860px;margin-bottom:28px">
+      <div class="bench-select-wrap" style="margin-bottom:0">
+        <label class="name-label" style="margin-bottom:6px">Your venture</label>
+        <select class="bench-select" id="bench-entry" onchange="setBenchEntry(parseInt(this.value))">${entryOpts}</select>
+      </div>
+      <div class="bench-select-wrap" style="margin-bottom:0">
+        <label class="name-label" style="margin-bottom:6px">Sector</label>
+        <select class="bench-select" id="bench-sector" onchange="setBenchSector(this.value)">${sectorOpts}</select>
+      </div>
+      <div class="bench-select-wrap" style="margin-bottom:0">
+        <label class="name-label" style="margin-bottom:6px">Stage benchmark</label>
+        <select class="bench-select" id="bench-stage" onchange="setBenchStage(this.value)">${stageOpts}</select>
+      </div>
+    </div>
+    <div id="bench-results"></div>
+  `;
+
+  renderBenchResults(selEntry, bench, selSector, selStage);
+}
+
+function setBenchEntry(id){
+  benchSelected = { ...(benchSelected||{}), id };
+  renderBenchmark();
+}
+function setBenchSector(s){
+  benchSelected = { ...(benchSelected||{}), sector:s };
+  renderBenchmark();
+}
+function setBenchStage(s){
+  benchSelected = { ...(benchSelected||{}), stage:s };
+  renderBenchmark();
+}
+
+function renderBenchResults(entry, bench, sector, stage){
+  if(!entry){ document.getElementById('bench-results').innerHTML=''; return; }
+  const el = document.getElementById('bench-results');
+
+  const your = entry.score;
+  const avg  = bench.composite;
+  const diff = your - avg;
+  const diffStr = (diff>=0?'+':'')+diff;
+  const diffCol = diff>=5?'#4CAF82':diff>=-5?'#C5973A':'#C53A3A';
+
+  const pillarMap = { team:0, market:1, financial:2, product:3 };
+  const pillarKeys = ['team','market','financial','product'];
+  const pillarLabels = ['Team & Founder','Market & Competition','Financial & Runway','Product & Tech'];
+
+  // ── Hero metrics ────────────────────────────────────────────────────────
+  const pctile = calcPercentile(your, avg);
+
+  let heroHtml = `<div class="bench-hero">
+    <div class="bench-metric">
+      <div class="bench-metric-label">Your composite vs ${BENCHMARKS[sector].label} ${stage}</div>
+      <div class="bench-metric-row">
+        <div class="bench-metric-yours" style="color:${scCol(your)}">${your}</div>
+        <div class="bench-metric-vs">vs</div>
+        <div class="bench-metric-avg">${avg}</div>
+      </div>
+      <div class="bench-metric-delta" style="color:${diffCol}">${diffStr} vs sector avg</div>
+    </div>
+    <div class="bench-metric">
+      <div class="bench-metric-label">Estimated percentile</div>
+      <div class="bench-metric-row">
+        <div class="bench-metric-yours" style="color:${scCol(your)}">${pctile}<span style="font-size:18px">th</span></div>
+      </div>
+      <div class="bench-metric-delta" style="color:${diffCol}">${pctile>=60?'Above average':pctile>=40?'Near average':'Below average'}</div>
+    </div>
+    <div class="bench-metric">
+      <div class="bench-metric-label">Points to next tier</div>
+      <div class="bench-metric-row">
+        <div class="bench-metric-yours" style="color:var(--gold)">${nextTierGap(your)}</div>
+      </div>
+      <div class="bench-metric-delta" style="color:#555">${nextTierLabel(your)}</div>
+    </div>
+  </div>`;
+
+  // ── Bar chart — your score vs benchmark per pillar ─────────────────────
+  let barsHtml = `<div class="bench-bars-wrap">
+    <div class="bench-bars-title">Your score vs ${BENCHMARKS[sector].label} ${stage} average — by pillar</div>`;
+
+  pillarKeys.forEach((key,i)=>{
+    const yours = entry.pillars[i]?.score || 0;
+    const benchVal = bench[key];
+    const d = yours - benchVal;
+    const dCol = d>=5?'#4CAF82':d>=-5?'#C5973A':'#C53A3A';
+    const avgPct = benchVal;
+    barsHtml += `<div class="bench-bar-group">
+      <div class="bench-bar-label">
+        <span style="color:#999">${pillarLabels[i]}</span>
+        <span style="color:${dCol}">${yours} vs ${benchVal} avg (${d>=0?'+':''}${d})</span>
+      </div>
+      <div class="bench-bar-track" style="height:8px">
+        <div class="bench-bar-yours" style="width:${yours}%;background:${scCol(yours)};height:8px"></div>
+        <div class="bench-bar-avg-line" style="left:${avgPct}%">
+          <div class="bench-bar-avg-label">${benchVal}</div>
+        </div>
+      </div>
+    </div>`;
+  });
+  barsHtml += '</div>';
+
+  // ── Benchmark insights ─────────────────────────────────────────────────
+  const insights = generateInsights(entry, bench, sector, stage);
+  let insightHtml = `<div class="bench-insight-wrap">
+    <div class="bench-insight-title">TTX benchmark insights</div>`;
+  insights.forEach(ins=>{
+    insightHtml += `<div class="bench-insight ${ins.type}">${ins.text}</div>`;
+  });
+  insightHtml += `<div class="bench-sector-note">
+    Benchmarks are derived from TTX analysis of early-stage venture risk profiles across sectors.
+    Sector averages represent the median risk score for ventures that successfully raised at each stage.
+    Your score does not need to match the benchmark exactly — it signals where to focus before your next raise.
+  </div></div>`;
+
+  el.innerHTML = heroHtml + barsHtml + insightHtml;
+}
+
+function calcPercentile(score, avg){
+  // Approximate normal distribution percentile given score vs sector avg
+  // Assume std dev of ~12 points based on typical deal spread
+  const z = (score - avg) / 12;
+  const pctile = Math.round(50 + 50 * Math.tanh(z * 0.8));
+  return Math.min(99, Math.max(1, pctile));
+}
+
+function nextTierGap(score){
+  if(score>=70) return 0;
+  if(score>=50) return 70 - score;
+  if(score>=30) return 50 - score;
+  return 30 - score;
+}
+function nextTierLabel(score){
+  if(score>=70) return 'Already at Low Risk';
+  if(score>=50) return 'points to Low Risk';
+  if(score>=30) return 'points to Moderate Risk';
+  return 'points to High Risk';
+}
+
+function generateInsights(entry, bench, sector, stage){
+  const insights = [];
+  const pillarKeys = ['team','market','financial','product'];
+  const pillarLabels = ['Team & Founder','Market & Competition','Financial & Runway','Product & Tech'];
+
+  // Overall
+  const diff = entry.score - bench.composite;
+  if(diff >= 10){
+    insights.push({type:'good', text:`Your composite score of ${entry.score} is ${diff} points above the ${BENCHMARKS[sector].label} ${stage} average of ${bench.composite}. This is a strong position for fundraising at this stage.`});
+  } else if(diff >= 0){
+    insights.push({type:'good', text:`Your composite score of ${entry.score} is in line with the ${BENCHMARKS[sector].label} ${stage} average (${bench.composite}). You are fundable at this stage with focused improvements.`});
+  } else if(diff >= -10){
+    insights.push({type:'warn', text:`Your composite score of ${entry.score} is ${Math.abs(diff)} points below the ${BENCHMARKS[sector].label} ${stage} average of ${bench.composite}. Targeted risk reduction in your weakest pillars should be your priority.`});
+  } else {
+    insights.push({type:'bad', text:`Your composite score of ${entry.score} is ${Math.abs(diff)} points below the ${BENCHMARKS[sector].label} ${stage} average of ${bench.composite}. Significant improvement is needed before a successful raise at this stage.`});
+  }
+
+  // Per-pillar insights — flag biggest gaps
+  const gaps = pillarKeys.map((k,i)=>({
+    label:pillarLabels[i],
+    yours:entry.pillars[i]?.score||0,
+    avg:bench[k],
+    diff:(entry.pillars[i]?.score||0)-bench[k]
+  })).sort((a,b)=>a.diff-b.diff);
+
+  const worst = gaps[0];
+  const best  = gaps[gaps.length-1];
+
+  if(worst.diff <= -10){
+    insights.push({type:'bad', text:`Your biggest gap vs benchmark is ${worst.label}: you score ${worst.yours} vs the sector average of ${worst.avg}. This is the highest-priority pillar to address before fundraising.`});
+  } else if(worst.diff <= -5){
+    insights.push({type:'warn', text:`${worst.label} is your weakest pillar relative to benchmark: ${worst.yours} vs sector average ${worst.avg}. Investors in ${BENCHMARKS[sector].label} will probe this area heavily.`});
+  }
+
+  if(best.diff >= 8){
+    insights.push({type:'good', text:`${best.label} is your strongest advantage vs benchmark: ${best.yours} vs sector average ${best.avg}. Lead with this in investor conversations.`});
+  }
+
+  // Financial special flag — always worth calling out
+  const finDiff = (entry.pillars[2]?.score||0) - bench.financial;
+  if(finDiff < -15){
+    insights.push({type:'bad', text:`Your Financial & Runway score is significantly below the ${stage} benchmark (${entry.pillars[2]?.score||0} vs ${bench.financial}). Most investors at this stage require at least ${bench.financial}+ on financial health before proceeding.`});
+  }
+
+  return insights;
+}
+
+// ── Portfolio Comparison ──────────────────────────────────────────────────────
+let cmpA=null,cmpB=null;
+
+function renderCompare(){
+  const h=loadHistory();
+  const el=document.getElementById('compare-body');
+  if(h.length<2){
+    el.innerHTML=`<div class="compare-empty">You need at least 2 saved assessments to compare.<br>Complete more assessments and they will appear here automatically.</div>`;
+    return;
+  }
+  const opts=h.map(e=>`<option value="${e.id}">${e.name} — ${e.tier} (${e.score}) · ${e.date}</option>`).join('');
+  const idA=cmpA||h[0].id;
+  const idB=cmpB||h[Math.min(1,h.length-1)].id;
+
+  el.innerHTML=`
+    <div class="compare-grid">
+      <div class="compare-slot">
+        <div class="compare-slot-label">Venture A</div>
+        <select class="compare-select" id="sel-a" onchange="cmpA=parseInt(this.value);renderCompare()">${opts}</select>
+        <div id="slot-a-detail"></div>
+      </div>
+      <div class="compare-slot">
+        <div class="compare-slot-label">Venture B</div>
+        <select class="compare-select" id="sel-b" onchange="cmpB=parseInt(this.value);renderCompare()">${opts}</select>
+        <div id="slot-b-detail"></div>
+      </div>
+    </div>
+    <div class="compare-radar-wrap">
+      <div class="compare-radar-title">Radar overlay — both ventures</div>
+      <canvas id="compare-radar" width="800" height="320"></canvas>
+    </div>
+    <div class="compare-table-wrap">
+      <div class="compare-table-title">Pillar-by-pillar breakdown</div>
+      <table class="compare-table" id="compare-table"></table>
+    </div>
+    <div class="compare-verdict-row" id="compare-verdicts"></div>
+  `;
+
+  document.getElementById('sel-a').value=idA;
+  document.getElementById('sel-b').value=idB;
+
+  const entA=h.find(e=>e.id===idA)||h[0];
+  const entB=h.find(e=>e.id===idB)||h[1];
+
+  renderSlot('slot-a-detail',entA);
+  renderSlot('slot-b-detail',entB);
+  drawCompareRadar(entA,entB);
+  renderCompareTable(entA,entB);
+  renderCompareVerdicts(entA,entB);
+}
+
+function renderSlot(elId,entry){
+  const sc=entry.score,col=scCol(sc),t=tier(sc);
+  const bars=entry.pillars.map(p=>{
+    const pc=scCol(p.score);
+    return`<div class="compare-p-row">
+      <span class="compare-p-name">${p.label.split(' & ')[0]}</span>
+      <div class="compare-p-track"><div class="compare-p-fill" style="width:${p.score}%;background:${pc}"></div></div>
+      <span class="compare-p-val" style="color:${pc}">${p.score}</span>
+    </div>`;
+  }).join('');
+  document.getElementById(elId).innerHTML=`
+    <div class="compare-slot-detail">
+      <div class="compare-slot-name">${entry.name}</div>
+      <div class="compare-slot-meta">${entry.mode} · ${entry.date}</div>
+      <div class="compare-slot-score" style="color:${col}">${sc}</div>
+      <div class="compare-slot-tier" style="color:${col}">${t.label}</div>
+      <div class="compare-slot-pillars">${bars}</div>
+    </div>`;
+}
+
+function drawCompareRadar(a,b){
+  const cv=document.getElementById('compare-radar');
+  if(!cv)return;
+  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  const cx=W/2,cy=H/2+10,r=Math.min(W,H)*.35,n=4;
+  ctx.clearRect(0,0,W,H);
+
+  // Grid rings
+  for(let ring=1;ring<=5;ring++){
+    ctx.beginPath();
+    for(let i=0;i<n;i++){const a2=(i/n)*Math.PI*2-Math.PI/2,rr=r*ring/5;i===0?ctx.moveTo(cx+Math.cos(a2)*rr,cy+Math.sin(a2)*rr):ctx.lineTo(cx+Math.cos(a2)*rr,cy+Math.sin(a2)*rr)}
+    ctx.closePath();ctx.strokeStyle='rgba(197,151,58,0.08)';ctx.lineWidth=.5;ctx.stroke();
+    // Ring label
+    if(ring%2===0){ctx.fillStyle='#333';ctx.font='9px monospace';ctx.textAlign='center';ctx.fillText(ring*20,cx,cy-r*ring/5-3)}
+  }
+  for(let i=0;i<n;i++){const a2=(i/n)*Math.PI*2-Math.PI/2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a2)*r,cy+Math.sin(a2)*r);ctx.strokeStyle='rgba(197,151,58,0.1)';ctx.lineWidth=.5;ctx.stroke()}
+
+  // Draw venture A (gold)
+  function drawShape(entry,color,alpha){
+    const scores=entry.pillars.map(p=>p.score/100);
+    ctx.beginPath();
+    scores.forEach((s,i)=>{const a2=(i/n)*Math.PI*2-Math.PI/2;const x=cx+Math.cos(a2)*r*s,y=cy+Math.sin(a2)*r*s;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});
+    ctx.closePath();
+    ctx.fillStyle=color.replace(')',`,${alpha})`).replace('rgb','rgba');
+    ctx.fill();
+    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.stroke();
+    scores.forEach((s,i)=>{const a2=(i/n)*Math.PI*2-Math.PI/2;ctx.beginPath();ctx.arc(cx+Math.cos(a2)*r*s,cy+Math.sin(a2)*r*s,5,0,Math.PI*2);ctx.fillStyle=color;ctx.fill()});
+  }
+
+  drawShape(a,'#C5973A',0.15);
+  drawShape(b,'#4CAF82',0.12);
+
+  // Labels
+  const labels=['Team & Founder','Market & Competition','Financial & Runway','Product & Tech'];
+  labels.forEach((lb,i)=>{
+    const a2=(i/n)*Math.PI*2-Math.PI/2,lx=cx+Math.cos(a2)*(r+30),ly=cy+Math.sin(a2)*(r+28);
+    ctx.fillStyle='#777';ctx.font='11px sans-serif';
+    ctx.textAlign=lx<cx-10?'right':lx>cx+10?'left':'center';
+    ctx.textBaseline=ly<cy-10?'bottom':ly>cy+10?'top':'middle';
+    ctx.fillText(lb,lx,ly);
+  });
+
+  // Legend
+  ctx.fillStyle='#C5973A';ctx.fillRect(20,20,12,4);
+  ctx.fillStyle='#888';ctx.font='11px sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText(a.name,38,22);
+  ctx.fillStyle='#4CAF82';ctx.fillRect(20,38,12,4);
+  ctx.fillStyle='#888';ctx.fillText(b.name,38,40);
+}
+
+function renderCompareTable(a,b){
+  const pillarNames=['Team & Founder','Market & Competition','Financial & Runway','Product & Tech'];
+  let rows=`<tr>
+    <th style="color:#888">Dimension</th>
+    <th style="color:#C5973A">${a.name}</th>
+    <th style="color:#4CAF82">${b.name}</th>
+    <th style="color:#555">Edge</th>
+  </tr>`;
+
+  // Composite row
+  const aWins=a.score>b.score,draw=a.score===b.score;
+  rows+=`<tr>
+    <td style="font-weight:bold;color:var(--bone)">Composite score</td>
+    <td style="font-weight:bold;color:${scCol(a.score)}">${a.score}</td>
+    <td style="font-weight:bold;color:${scCol(b.score)}">${b.score}</td>
+    <td><span class="compare-win" style="color:${draw?'#555':aWins?'#C5973A':'#4CAF82'}">${draw?'Draw':aWins?a.name+' +'+( a.score-b.score):b.name+' +'+(b.score-a.score)}</span></td>
+  </tr>`;
+
+  // Pillar rows
+  a.pillars.forEach((pa,i)=>{
+    const pb=b.pillars[i];
+    const diff=pa.score-pb.score;
+    const winner=diff>0?a.name:diff<0?b.name:'Draw';
+    const winCol=diff>0?'#C5973A':diff<0?'#4CAF82':'#555';
+    rows+=`<tr>
+      <td style="color:#888">${pa.label}</td>
+      <td style="color:${scCol(pa.score)}">${pa.score}</td>
+      <td style="color:${scCol(pb.score)}">${pb.score}</td>
+      <td><span class="compare-win" style="color:${winCol}">${diff===0?'Draw':winner+' +'+Math.abs(diff)}</span></td>
+    </tr>`;
+  });
+
+  // Verdict row
+  rows+=`<tr>
+    <td style="color:#888">Verdict</td>
+    <td style="color:${a.verdict==='Go'?'#4CAF82':a.verdict==='Conditional Go'?'#C5973A':'#C53A3A'}">${a.verdict}</td>
+    <td style="color:${b.verdict==='Go'?'#4CAF82':b.verdict==='Conditional Go'?'#C5973A':'#C53A3A'}">${b.verdict}</td>
+    <td style="color:#555">—</td>
+  </tr>`;
+
+  document.getElementById('compare-table').innerHTML=rows;
+}
+
+function renderCompareVerdicts(a,b){
+  function summary(e){
+    const weakest=e.pillars.slice().sort((x,y)=>x.score-y.score)[0];
+    const strongest=e.pillars.slice().sort((x,y)=>y.score-x.score)[0];
+    return`Strongest: ${strongest.label} (${strongest.score}). Biggest risk: ${weakest.label} (${weakest.score}).`;
+  }
+  const aCol=a.verdict==='Go'?'#4CAF82':a.verdict==='Conditional Go'?'#C5973A':'#C53A3A';
+  const bCol=b.verdict==='Go'?'#4CAF82':b.verdict==='Conditional Go'?'#C5973A':'#C53A3A';
+  document.getElementById('compare-verdicts').innerHTML=`
+    <div class="compare-verdict-card" style="border-color:${aCol}">
+      <div class="cvcard-name">${a.name}  ·  ${a.date}</div>
+      <div class="cvcard-verdict" style="color:${aCol}">${a.verdict}</div>
+      <div class="cvcard-body">${summary(a)}</div>
+    </div>
+    <div class="compare-verdict-card" style="border-color:${bCol}">
+      <div class="cvcard-name">${b.name}  ·  ${b.date}</div>
+      <div class="cvcard-verdict" style="color:${bCol}">${b.verdict}</div>
+      <div class="cvcard-body">${summary(b)}</div>
+    </div>`;
+}
+
+// ── Assessment History (localStorage) ────────────────────────────────────────
+const HIST_KEY='ttx_history_v1';
+
+function loadHistory(){
+  try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]')}catch(e){return[]}
+}
+function saveHistory(h){localStorage.setItem(HIST_KEY,JSON.stringify(h))}
+
+function saveAssessment(c,t,goV,condV){
+  const h=loadHistory();
+  const entry={
+    id:Date.now(),
+    name:sName,
+    mode,
+    date:sDate,
+    ts:Date.now(),
+    score:c,
+    tier:t.label,
+    verdict:goV?'Go':condV?'Conditional Go':'No-Go',
+    pillars:PILLARS.map(p=>({id:p.id,label:p.label,score:pScore(p)||0})),
+    answers:{...ANS}
+  };
+  // Replace if same venture + mode assessed today, else prepend
+  const today=new Date().toDateString();
+  const idx=h.findIndex(e=>e.name===sName&&e.mode===mode&&new Date(e.ts).toDateString()===today);
+  if(idx>=0)h[idx]=entry;else h.unshift(entry);
+  // Keep last 50
+  saveHistory(h.slice(0,50));
+  updateHistCount();
+}
+
+function updateHistCount(){
+  const h=loadHistory();
+  const el=document.getElementById('hist-count');
+  if(h.length>0){el.style.display='inline';el.textContent=h.length}
+  else el.style.display='none';
+}
+
+function deleteAssessment(id){
+  const h=loadHistory().filter(e=>e.id!==id);
+  saveHistory(h);
+  renderHistory();
+  updateHistCount();
+}
+
+function reloadAssessment(id){
+  const h=loadHistory();
+  const entry=h.find(e=>e.id===id);
+  if(!entry)return;
+  mode=entry.mode;sName=entry.name;sDate=entry.date;
+  ANS={...entry.answers};
+  showTab('calculator');
+  showScreen('scr-results');
+  showResults();
+}
+
+function renderHistory(){
+  const h=loadHistory();
+  const el=document.getElementById('hist-body');
+  if(!h.length){
+    el.innerHTML='<div class="hist-empty">No assessments saved yet. Complete an assessment to see your history here.</div>';
+    return;
+  }
+
+  // Stats
+  const avgScore=Math.round(h.reduce((a,e)=>a+e.score,0)/h.length);
+  const best=h.reduce((a,e)=>e.score>a.score?e:a,h[0]);
+  const goCount=h.filter(e=>e.verdict==='Go').length;
+  const ventures=[...new Set(h.map(e=>e.name))].length;
+
+  let html=`<div class="hist-stats">
+    <div class="hist-stat"><div class="hist-stat-num" style="color:var(--gold)">${h.length}</div><div class="hist-stat-label">Assessments</div></div>
+    <div class="hist-stat"><div class="hist-stat-num" style="color:${scCol(avgScore)}">${avgScore}</div><div class="hist-stat-label">Avg score</div></div>
+    <div class="hist-stat"><div class="hist-stat-num" style="color:#4CAF82">${goCount}</div><div class="hist-stat-label">Go verdicts</div></div>
+    <div class="hist-stat"><div class="hist-stat-num" style="color:var(--gold)">${ventures}</div><div class="hist-stat-label">Ventures</div></div>
+  </div>`;
+
+  // Trend chart (last 10 assessments)
+  if(h.length>1){
+    const recent=h.slice(0,10).reverse();
+    const max=100,chartW=650,chartH=60,pad=8;
+    const pts=recent.map((e,i)=>({
+      x:pad+(i/(recent.length-1||1))*(chartW-pad*2),
+      y:chartH-pad-(e.score/max)*(chartH-pad*2),
+      s:e.score,n:e.name,c:scCol(e.score)
+    }));
+    const polyline=pts.map(p=>`${p.x},${p.y}`).join(' ');
+    let svgPts='';
+    pts.forEach(p=>{svgPts+=`<circle cx="${p.x}" cy="${p.y}" r="4" fill="${p.c}"/><title>${p.n}: ${p.s}</title>`});
+    html+=`<div class="hist-trend">
+      <div class="hist-trend-title">Score trend — last ${recent.length} assessments</div>
+      <div class="trend-chart">
+        <svg width="100%" viewBox="0 0 ${chartW} ${chartH}" style="overflow:visible">
+          <polyline points="${polyline}" fill="none" stroke="rgba(197,151,58,0.3)" stroke-width="1.5"/>
+          ${svgPts}
+        </svg>
+      </div>
+    </div>`;
+  }
+
+  // List
+  html+=`<div class="eyebrow" style="margin-bottom:16px">All assessments</div><div class="hist-list">`;
+  h.forEach(entry=>{
+    const vc=entry.verdict==='Go'?'#4CAF82':entry.verdict==='Conditional Go'?'#C5973A':'#C53A3A';
+    const sc=entry.score;
+    const pillarBars=entry.pillars.map(p=>{
+      const pc=scCol(p.score);
+      return`<div class="hist-pillar-item">
+        <div class="hist-pillar-name">${p.label.split(' & ')[0]}</div>
+        <div class="hist-pillar-bar"><div class="hist-pillar-fill" style="width:${p.score}%;background:${pc}"></div></div>
+        <div class="hist-pillar-val" style="color:${pc}">${p.score}</div>
+      </div>`;
+    }).join('');
+    html+=`<div class="hist-card">
+      <div class="hist-card-header">
+        <div class="hist-card-left">
+          <div class="hist-card-name">${entry.name}</div>
+          <div class="hist-card-meta">${entry.mode} mode  ·  ${entry.date}</div>
+        </div>
+        <div class="hist-card-right">
+          <div class="hist-card-score" style="color:${scCol(sc)}">${sc}</div>
+          <div class="hist-card-tier" style="color:${scCol(sc)}">${entry.tier}</div>
+        </div>
+      </div>
+      <div class="hist-card-pillars">${pillarBars}</div>
+      <div class="hist-card-footer">
+        <div class="hist-card-verdict" style="color:${vc}">${entry.verdict}</div>
+        <div class="hist-card-actions">
+          <button class="btn-hist-sm" onclick="reloadAssessment(${entry.id})">View results</button>
+          <button class="btn-hist-del" onclick="deleteAssessment(${entry.id})">Delete</button>
+        </div>
+      </div>
+    </div>`;
+  });
+  html+=`</div>
+  <div class="hist-clear-wrap">
+    <button class="btn-hist-del" onclick="clearAllHistory()">Clear all history</button>
+  </div>`;
+  el.innerHTML=html;
+}
+
+function clearAllHistory(){
+  if(confirm('Delete all saved assessments? This cannot be undone.'))
+    {saveHistory([]);renderHistory();updateHistCount();}
+}
+
+// Init history count on load
+document.addEventListener('DOMContentLoaded',updateHistCount);
+
+</script>
+
+<!-- html2canvas loaded from CDN if online, graceful fallback if offline -->
+<script>
+(function(){
+  var s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+  s.onerror=function(){console.log('html2canvas not loaded (offline) — PNG export will use fallback');};
+  document.head.appendChild(s);
+})();
+</script>
+
+
+
+<!-- ══════════════════════════════════════════════════════════ COMPARE TAB -->
+<div id="tab-compare" class="screen compare-screen">
+  <div class="eyebrow">Portfolio Comparison</div>
+  <h1 class="headline" style="font-size:32px;margin-bottom:8px">Compare ventures</h1>
+  <p class="subline" style="margin-bottom:28px">Select two saved assessments to view a side-by-side risk breakdown with overlaid radar charts.</p>
+  <div id="compare-body"></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ BENCHMARK TAB -->
+<div id="tab-benchmark" class="screen bench-screen">
+  <div class="eyebrow">TTX Benchmark</div>
+  <h1 class="headline" style="font-size:32px;margin-bottom:8px">How do you compare?</h1>
+  <p class="subline" style="margin-bottom:28px">See your venture's risk scores against TTX sector benchmarks — calibrated from real early-stage deal data across pre-seed to Series A.</p>
+  <div id="bench-body"></div>
+</div>
+
+
+<!-- TERM SHEET TAB -->
+<div id="tab-termsheet" class="screen ts-screen"><div class="eyebrow">Term Sheet Generator</div><h1 class="headline" style="font-size:32px;margin-bottom:8px">Risk-adjusted term sheet</h1><p class="subline" style="margin-bottom:28px">Generates deal terms calibrated to the TTX risk score.</p><div id="ts-body"></div></div>
+
+<div id="tab-waitlist" class="screen waitlist-screen">
+  <div class="wl-hero">
+    <div class="wl-badge">TTX v2 Research Cohort</div>
+    <h1 class="wl-headline">Help build the next<br>generation of TTX.</h1>
+    <p class="wl-sub">TTX v2 adds Monte Carlo simulation, probabilistic success scoring, factor correlation, and behavioural bias adjustment. Join the cohort for early access and to influence the methodology.</p>
+    <div class="wl-features">
+      <div class="wl-feature"><div class="wl-feature-icon"></div><div><strong>Monte Carlo simulation</strong>1,000+ scenario runs producing score distributions, not a point estimate.</div></div>
+      <div class="wl-feature"><div class="wl-feature-icon"></div><div><strong>Probability of success</strong>Estimated probability of raise within 18 months, benchmarked to sector data.</div></div>
+      <div class="wl-feature"><div class="wl-feature-icon"></div><div><strong>Factor correlation engine</strong>Correlated weaknesses compound risk. TTX v2 models this correctly.</div></div>
+      <div class="wl-feature"><div class="wl-feature-icon"></div><div><strong>Behavioural calibration</strong>Startup responses adjusted for documented overconfidence bias.</div></div>
+    </div>
+  </div>
+  <div id="wl-form-wrap" class="wl-form">
+    <input class="wl-input" id="wl-name" type="text" placeholder="Your full name">
+    <input class="wl-input" id="wl-email" type="email" placeholder="Email address">
+    <input class="wl-input" id="wl-org" type="text" placeholder="Organisation or fund name (optional)">
+    <select class="wl-select" id="wl-role">
+      <option value="" disabled selected>Your role</option>
+      <option value="investor">Investor / VC / Angel</option>
+      <option value="founder">Founder / Co-founder</option>
+      <option value="advisor">Advisor / Consultant</option>
+      <option value="accelerator">Accelerator / Incubator</option>
+      <option value="researcher">Researcher / Academic</option>
+      <option value="other">Other</option>
+    </select>
+    <textarea class="wl-textarea" id="wl-why" placeholder="What would make TTX v2 most useful for you? (optional)"></textarea>
+    <div class="gate-error" id="wl-error"></div>
+    <button class="wl-btn" id="wl-submit-btn" type="button">Join the Research Cohort</button>
+  </div>
+  <div class="wl-success" id="wl-success" style="display:none">
+    <div class="wl-success-title">You are on the list.</div>
+    <div class="wl-success-body">We will contact you when TTX v2 enters beta. You will receive early access and an invitation to the validation session.</div>
+  </div>
+  <p class="wl-privacy" style="margin-top:16px">Your information is submitted to the TTX research team only. We do not share data with third parties.</p>
+  <div class="wl-count" id="wl-count"></div>
+</div>
+
+<div id="tab-admin" class="screen admin-screen">
+  <div id="admin-login-wrap">
+    <div class="eyebrow">TTX Admin</div>
+    <h1 class="headline" style="font-size:28px;margin-bottom:8px">Data dashboard</h1>
+    <p class="subline" style="margin-bottom:24px">Enter the admin password to access assessment data, waitlist, and exports.</p>
+    <div style="display:flex;gap:10px;max-width:400px">
+      <input class="name-input" id="admin-pw" type="password" placeholder="Admin password" style="margin-bottom:0;flex:1">
+      <button class="btn-gold" id="admin-login-btn" type="button" style="padding:13px 24px">Enter</button>
+    </div>
+    <div class="gate-error" id="admin-error" style="margin-top:8px"></div>
+  </div>
+  <div id="admin-dashboard" style="display:none">
+    <div class="eyebrow">TTX Admin Dashboard</div>
+    <div class="admin-tabs">
+      <div class="admin-tab active" id="atab-assessments" onclick="switchAdminTab('assessments')">Assessments</div>
+      <div class="admin-tab" id="atab-waitlist" onclick="switchAdminTab('waitlist')">Waitlist</div>
+      <div class="admin-tab" id="atab-outcomes" onclick="switchAdminTab('outcomes')">Outcomes</div>
+    </div>
+    <div id="admin-content"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ HISTORY TAB -->
+<div id="tab-history" class="screen history-screen">
+  <div class="eyebrow">Assessment History</div>
+  <h1 class="headline" style="font-size:32px;margin-bottom:8px">Past assessments</h1>
+  <p class="subline" style="margin-bottom:28px">Every completed assessment is saved locally. Track how risk scores evolve over time.</p>
+  <div id="hist-body"></div>
+</div>
+
+</body>
+</html>
